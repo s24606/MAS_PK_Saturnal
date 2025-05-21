@@ -31,7 +31,8 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        initialData();
+        if(biletRepository.count()==0&&stacjaRepository.count()==0&&pociagRepository.count()==0)
+            initialData();
     }
 
     private void initialData(){
