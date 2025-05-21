@@ -1,4 +1,4 @@
-package corp.bs.mm.mas_mp5;
+package corp.bs.mm.masmp5;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

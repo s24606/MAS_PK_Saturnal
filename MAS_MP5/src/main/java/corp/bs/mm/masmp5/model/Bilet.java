@@ -1,23 +1,22 @@
-package corp.bs.mm.mas_mp5.model;
+package corp.bs.mm.masmp5.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@ToString
-public class Bilet {
+@SuperBuilder
+@Inheritance(strategy = InheritanceType.JOINED)
+public abstract class Bilet {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private Long biletId;
 
     @NotNull(message = "Price is mandatory")
     @Min(0)
