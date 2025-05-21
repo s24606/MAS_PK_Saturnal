@@ -8,9 +8,9 @@ public class CzasPrzyjazduPoOdjezdzieValidator implements ConstraintValidator<Cz
 
     @Override
     public boolean isValid(BiletPrzesiadkowy bilet, ConstraintValidatorContext context) {
-        if (bilet == null || bilet.getCzas_odjazdu() == null || bilet.getCzas_przyjazdu() == null) {
+        if (bilet == null || bilet.getCzasOdjazdu() == null || bilet.getCzasPrzyjazdu() == null) {
             return true;
         }
-        return bilet.getCzas_przyjazdu().isAfter(bilet.getCzas_odjazdu());
+        return bilet.getCzasPrzyjazdu().isAfter(bilet.getCzasOdjazdu());
     }
 }

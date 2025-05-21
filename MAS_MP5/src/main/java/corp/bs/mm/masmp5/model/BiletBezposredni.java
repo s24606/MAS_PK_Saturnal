@@ -17,5 +17,5 @@ import lombok.experimental.SuperBuilder;
 public class BiletBezposredni extends Bilet{
 
     @Nullable
-    private int nr_miejsca;
+    private int nrMiejsca;
 }
