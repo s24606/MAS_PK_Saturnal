@@ -4,14 +4,17 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
+@Getter
+@Setter
 public class Polaczenie {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,9 +28,10 @@ public class Polaczenie {
     private Pociag pociagKursujacy;
 
     @OneToMany(mappedBy = "polaczenie", cascade = CascadeType.REMOVE)
+    @OrderBy("planowanyCzasOdjazdu ASC")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private Set<Postoj> postoje = new HashSet<>();
+    private List<Postoj> postoje = new ArrayList<>();
 
     @OneToMany(mappedBy = "polaczenie", cascade = CascadeType.REMOVE)
     @ToString.Exclude

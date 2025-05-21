@@ -6,7 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -28,9 +30,10 @@ public class Stacja {
     private int tory;
 
     @OneToMany(mappedBy = "stacja", cascade = CascadeType.REMOVE)
+    @OrderBy("planowanyCzasOdjazdu ASC")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private Set<Postoj> postoje = new HashSet<>();
+    private List<Postoj> postoje = new ArrayList<>();
 
     @OneToMany(mappedBy = "stacja", cascade = CascadeType.REMOVE)
     @ToString.Exclude
