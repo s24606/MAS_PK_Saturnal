@@ -1,6 +1,6 @@
 package corp.bs.mm.masmp5.model;
 
-import corp.bs.mm.masmp5.model.constraints.CzasPrzyjazduPoOdjezdzie;
+import corp.bs.mm.masmp5.model.constraints.CzasBiletValidation;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
-@CzasPrzyjazduPoOdjezdzie
+@CzasBiletValidation
 public class BiletPrzesiadkowy extends Bilet{
 
     @NotNull

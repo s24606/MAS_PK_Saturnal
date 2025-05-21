@@ -13,6 +13,8 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
+@Setter
 public class Stacja {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

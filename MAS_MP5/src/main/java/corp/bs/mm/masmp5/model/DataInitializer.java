@@ -22,9 +22,10 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
     private final BiletBezposredniRepository biletBezposredniRepository;
 
     private final StacjaRepository stacjaRepository;
+    private final PostojRepository postojRepository;
+    private final PolaczenieRepository polaczenieRepository;
 
     private final PociagRepository pociagRepository;
-    private final PolaczenieRepository polaczenieRepository;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -44,18 +45,24 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         BiletBezposredni bb2 = BiletBezposredni.builder()
                 .cena(7.34).nrMiejsca(177).build();
 
-        Stacja st = Stacja.builder()
-                .nazwa("Warszawa Centralna")
-                .tory(8)
-                .build();
-
         Pociag poc = Pociag.builder()
                 .przewoznik("Koleje Mazowieckie")
                 .obowiazekRezerwacjiMiejsc(false)
                 .build();
+
+        Stacja st = Stacja.builder()
+                .nazwa("Warszawa Centralna")
+                .tory(8)
+                .build();
         Polaczenie pol = Polaczenie.builder()
                 .oznaczeniePolaczenia("R2345")
                 .pociagKursujacy(poc)
+                .build();
+        Postoj pos = Postoj.builder()
+                .planowanyCzasOdjazdu(LocalDateTime.of(2025, 5, 21, 14, 30))
+                .planowanyCzasPrzyjazdu(LocalDateTime.of(2025, 5, 21, 17, 55))
+                .stacja(st).nrToru(2)
+                .polaczenie(pol)
                 .build();
 
 
@@ -65,6 +72,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         stacjaRepository.saveAll(Arrays.asList(st));
         pociagRepository.saveAll(Arrays.asList(poc));
         polaczenieRepository.saveAll(Arrays.asList(pol));
+        postojRepository.saveAll(Arrays.asList(pos));
 
         logger.info("ok");
 
