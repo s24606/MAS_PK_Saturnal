@@ -27,6 +27,8 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
 
     private final PociagRepository pociagRepository;
 
+    private final PrzesiadkowyPolaczenieRepository przesiadkowyPolaczenieRepository;
+
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         initialData();
@@ -40,10 +42,6 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                 .czasPrzyjazdu(LocalDateTime.of(2025, 5, 21, 15, 40))
                 .marginesBledu(60)
                 .build();
-        BiletBezposredni bb1 = BiletBezposredni.builder()
-                        .cena(12.55).build();
-        BiletBezposredni bb2 = BiletBezposredni.builder()
-                .cena(7.34).nrMiejsca(177).build();
 
         Pociag poc = Pociag.builder()
                 .przewoznik("Koleje Mazowieckie")
@@ -59,20 +57,40 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                 .pociagKursujacy(poc)
                 .build();
         Postoj pos = Postoj.builder()
-                .planowanyCzasOdjazdu(LocalDateTime.of(2025, 5, 21, 14, 30))
-                .planowanyCzasPrzyjazdu(LocalDateTime.of(2025, 5, 21, 17, 55))
+                .planowanyCzasPrzyjazdu(LocalDateTime.of(2025, 5, 21, 14, 30))
+                .planowanyCzasOdjazdu(LocalDateTime.of(2025, 5, 21, 17, 55))
                 .stacja(st).nrToru(2)
                 .polaczenie(pol)
                 .build();
+        PrzesiadkowyPolaczenie pp1 = PrzesiadkowyPolaczenie.builder()
+                .biletPrzesiadkowy(bp)
+                .polaczenie(pol)
+                .build();
+        //PrzesiadkowyPolaczenie pp2 = PrzesiadkowyPolaczenie.builder()
+        //        .biletPrzesiadkowy(bp)
+        //        .polaczenie(pol)
+        //        .build();
 
 
-        biletRepository.saveAll(Arrays.asList(bp,bb1,bb2));
-        biletBezposredniRepository.saveAll(Arrays.asList(bb1,bb2));
-        biletPrzesiadkowyRepository.saveAll(Arrays.asList(bp));
+        BiletBezposredni bb1 = BiletBezposredni.builder()
+                .cena(12.55)
+                .polaczenie(pol)
+                .build();
+        BiletBezposredni bb2 = BiletBezposredni.builder()
+                .cena(7.34)
+                .polaczenie(pol)
+                .nrMiejsca(177)
+                .build();
+
+
         stacjaRepository.saveAll(Arrays.asList(st));
         pociagRepository.saveAll(Arrays.asList(poc));
         polaczenieRepository.saveAll(Arrays.asList(pol));
         postojRepository.saveAll(Arrays.asList(pos));
+        biletRepository.saveAll(Arrays.asList(bp,bb1,bb2));
+        biletBezposredniRepository.saveAll(Arrays.asList(bb1,bb2));
+        biletPrzesiadkowyRepository.saveAll(Arrays.asList(bp));
+        przesiadkowyPolaczenieRepository.saveAll(Arrays.asList(pp1));
 
         logger.info("ok");
 

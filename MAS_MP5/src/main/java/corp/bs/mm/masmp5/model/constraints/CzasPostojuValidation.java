@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CzasPostojuValidation {
-    String message() default "Czas odjazdu musi być po czasie przyjazdu (planowany lub faktyczny)";
+    String message() default "Czas odjazdu musi być po czasie przyjazdu (zarowno planowany jak i faktyczny)";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

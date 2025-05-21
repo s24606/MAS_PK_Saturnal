@@ -28,4 +28,14 @@ public class Polaczenie {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Postoj> postoje = new HashSet<>();
+
+    @OneToMany(mappedBy = "polaczenie", cascade = CascadeType.REMOVE)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<PrzesiadkowyPolaczenie> przesiadkowyPolaczenia = new HashSet<>();
+
+    @OneToMany(mappedBy = "polaczenie")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<BiletBezposredni> biletBezposrednie = new HashSet<>();
 }
