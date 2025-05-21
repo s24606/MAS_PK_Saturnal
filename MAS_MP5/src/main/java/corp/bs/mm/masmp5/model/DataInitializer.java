@@ -48,18 +48,30 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                 .obowiazekRezerwacjiMiejsc(false)
                 .build();
 
-        Stacja st = Stacja.builder()
+        Stacja st1 = Stacja.builder()
                 .nazwa("Warszawa Centralna")
                 .tory(8)
+                .build();
+        Stacja st2 = Stacja.builder()
+                .nazwa("Warszawa Wschodnia")
+                .tory(12)
                 .build();
         Polaczenie pol = Polaczenie.builder()
                 .oznaczeniePolaczenia("R2345")
                 .pociagKursujacy(poc)
                 .build();
-        Postoj pos = Postoj.builder()
+        Postoj pos1 = Postoj.builder()
                 .planowanyCzasPrzyjazdu(LocalDateTime.of(2025, 5, 21, 14, 30))
-                .planowanyCzasOdjazdu(LocalDateTime.of(2025, 5, 21, 17, 55))
-                .stacja(st).nrToru(2)
+                .planowanyCzasOdjazdu(LocalDateTime.of(2025, 5, 21, 14, 35))
+                .stacja(st1)
+                .nrToru(2)
+                .polaczenie(pol)
+                .build();
+        Postoj pos2 = Postoj.builder()
+                .planowanyCzasPrzyjazdu(LocalDateTime.of(2025, 5, 21, 14, 40))
+                .planowanyCzasOdjazdu(LocalDateTime.of(2025, 5, 21, 14, 55))
+                .stacja(st2)
+                .nrToru(2)
                 .polaczenie(pol)
                 .build();
         PrzesiadkowyPolaczenie pp1 = PrzesiadkowyPolaczenie.builder()
@@ -74,19 +86,23 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
 
         BiletBezposredni bb1 = BiletBezposredni.builder()
                 .cena(12.55)
+                .stacjaOdjazd(st1)
+                .stacjaPrzyjazd(st2)
                 .polaczenie(pol)
                 .build();
         BiletBezposredni bb2 = BiletBezposredni.builder()
                 .cena(7.34)
+                .stacjaOdjazd(st1)
+                .stacjaPrzyjazd(st2)
                 .polaczenie(pol)
                 .nrMiejsca(177)
                 .build();
 
 
-        stacjaRepository.saveAll(Arrays.asList(st));
+        stacjaRepository.saveAll(Arrays.asList(st1, st2));
         pociagRepository.saveAll(Arrays.asList(poc));
         polaczenieRepository.saveAll(Arrays.asList(pol));
-        postojRepository.saveAll(Arrays.asList(pos));
+        postojRepository.saveAll(Arrays.asList(pos1, pos2));
         biletRepository.saveAll(Arrays.asList(bp,bb1,bb2));
         biletBezposredniRepository.saveAll(Arrays.asList(bb1,bb2));
         biletPrzesiadkowyRepository.saveAll(Arrays.asList(bp));

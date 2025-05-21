@@ -1,6 +1,7 @@
 package corp.bs.mm.masmp5.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -22,7 +23,21 @@ public abstract class Bilet {
     @Min(0)
     private double cena;
 
+    @ManyToOne
+    @JoinColumn(name = "stacjaOdjazd_id")
+    private Stacja stacjaOdjazd;
 
+    @ManyToOne
+    @JoinColumn(name = "stacjaPrzyjazd_id")
+    private Stacja stacjaPrzyjazd;
+
+    @AssertTrue(message = "Stacja odjazdu i przyjazdu muszą być różne")
+    private boolean isStacjeRozne() {
+        if (stacjaOdjazd == null || stacjaPrzyjazd == null) {
+            return true;
+        }
+        return !stacjaOdjazd.equals(stacjaPrzyjazd);
+    }
 }
 
 

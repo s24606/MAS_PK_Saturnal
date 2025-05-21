@@ -31,4 +31,14 @@ public class Stacja {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Postoj> postoje = new HashSet<>();
+
+    @OneToMany(mappedBy = "stacja", cascade = CascadeType.REMOVE)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Postoj> biletyZ = new HashSet<>();
+
+    @OneToMany(mappedBy = "stacja", cascade = CascadeType.REMOVE)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Postoj> biletyDo = new HashSet<>();
 }
