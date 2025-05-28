@@ -1,6 +1,7 @@
 package corp.bs.mm.masmp5.model;
 
 import corp.bs.mm.masmp5.enums.typMiejsca;
+import corp.bs.mm.masmp5.enums.typWagonu;
 import corp.bs.mm.masmp5.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -36,11 +37,16 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        if(biletRepository.count()==0&&stacjaRepository.count()==0&&pociagRepository.count()==0)
-            initialData();
+        if(biletRepository.count()==0&&stacjaRepository.count()==0&&pociagRepository.count()==0) {
+            try {
+                initialData();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
-    private void initialData(){
+    private void initialData() throws Exception {
 
         BiletPrzesiadkowy bp = BiletPrzesiadkowy.builder()
                 .cena(14.45)
@@ -105,13 +111,15 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                 .nrMiejsca(177)
                 .build();
 
-        ArrayList<Wagon> wagony = new ArrayList<>();
-        ArrayList<Miejsce> allMiejsca = new ArrayList<>();
 
-        for(int i=1; i<=6; i++) {
+        ArrayList<Miejsce> allMiejsca = new ArrayList<>();
+        for (int i = 1; i <= 6; i++) {
+            double aw = Math.random();
             Wagon w = Wagon.builder()
+                    .numeracja(aw < 0.5 ? typWagonu.BEZNUMERACJI : typWagonu.ZNUMERACJA)
                     .nrWagonu(i)
                     .build();
+            w = wagonRepository.save(w);
 
             for (int j = 1; j <= 10; j++) {
                 double a = Math.random();
@@ -121,6 +129,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                 if (a > 0.5) typ.add(typMiejsca.STOLIK);
                 if (b > 0.6) typ.add(typMiejsca.ROWEROWE);
                 if (c > 0.4) typ.add(typMiejsca.INWALIDA);
+
                 Miejsce m = Miejsce.builder()
                         .typ(typ)
                         .nrMiejsca(j)
@@ -128,13 +137,11 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                         .build();
                 allMiejsca.add(m);
             }
-            wagony.add(w);
         }
 
 
         stacjaRepository.saveAll(Arrays.asList(st1, st2));
         pociagRepository.saveAll(Arrays.asList(poc));
-        wagonRepository.saveAll(wagony);
         miejsceRepository.saveAll(allMiejsca);
         polaczenieRepository.saveAll(Arrays.asList(pol));
         postojRepository.saveAll(Arrays.asList(pos1, pos2));
@@ -142,6 +149,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         biletBezposredniRepository.saveAll(Arrays.asList(bb1,bb2));
         biletPrzesiadkowyRepository.saveAll(Arrays.asList(bp));
         przesiadkowyPolaczenieRepository.saveAll(Arrays.asList(pp1));
+
 
         logger.info("ok");
 
