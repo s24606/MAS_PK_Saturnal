@@ -1,6 +1,7 @@
 package corp.bs.mm.masmp5.model;
 
 import corp.bs.mm.masmp5.enums.typMiejsca;
+import corp.bs.mm.masmp5.enums.typOsoby;
 import corp.bs.mm.masmp5.enums.typWagonu;
 import corp.bs.mm.masmp5.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 @Component
 @RequiredArgsConstructor
@@ -34,6 +36,8 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
     private final MiejsceRepository miejsceRepository;
 
     private final PrzesiadkowyPolaczenieRepository przesiadkowyPolaczenieRepository;
+
+    private final OsobaRepository osobaRepository;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -142,6 +146,13 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         }
 
 
+        for (int i = 0; i < 10; i++) {
+            osobaRepository.save(generateOsoba());
+        }
+
+
+
+
         stacjaRepository.saveAll(Arrays.asList(st1, st2));
         miejsceRepository.saveAll(allMiejsca);
         polaczenieRepository.saveAll(Arrays.asList(pol));
@@ -154,5 +165,52 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
 
         logger.info("ok");
 
+    }
+
+    private Osoba generateOsoba(){
+        List<String> imiona = Arrays.asList(
+                "Jan", "Piotr", "Marek", "Tomasz", "Andrzej",
+                "Krzysztof", "Paweł", "Michał", "Marcin", "Adam",
+                "Łukasz", "Grzegorz", "Mateusz", "Rafał", "Szymon",
+                "Sebastian", "Damian", "Kamil", "Jakub", "Robert",
+                "Anna", "Maria", "Katarzyna", "Magdalena", "Agnieszka",
+                "Joanna", "Ewa", "Aleksandra", "Natalia", "Zuzanna",
+                "Julia", "Wiktoria", "Małgorzata", "Paulina", "Karolina",
+                "Martyna", "Emilia", "Patrycja", "Dominika", "Barbara"
+        );
+        List<String> nazwiska = Arrays.asList(
+                "Kowalsk", "Nowakowsk", "Wiśniewsk", "Wójcick", "Kowalewsk",
+                "Kamińsk", "Lewandowsk", "Zielińsk", "Szymańsk",
+                "Dąbrowsk", "Kozłowsk", "Jankowsk", "Mazursk", "Wojciechowsk",
+                "Kwiatkowsk", "Kaczmarsk", "Piotrowsk", "Grabowsk",
+                "Zajączkowsk", "Pawłowsk", "Michalsk", "Królikowsk",
+                "Jabłońsk", "Wróblewsk", "Nowick", "Olszewsk",
+                "Olszańsk", "Jaworsk", "Malinowsk", "Pawłowsk", "Górsk",
+                "Witkowsk", "Markowsk", "Urbańsk", "Sikorsk", "Rutkowsk",
+                "Michalsk", "Ostrowsk", "Tomaszewsk", "Zalewsk"
+        );
+        Random random = new Random();
+        String imie = imiona.get(random.nextInt(imiona.size()));
+        String nazwisko = nazwiska.get(random.nextInt(nazwiska.size()));
+        nazwisko+= imie.endsWith("a")?'a':'i';
+        List<String> dom1 = Arrays.asList("onet", "gmail", "wp", "yahoo");
+        List<String> dom2 = Arrays.asList("pl", "com", "gov", "net", "de");
+        double a = Math.random();
+        double b = Math.random();
+        List<typOsoby> role = new ArrayList<>();
+        if (a < 1.0/2.0) role.add(typOsoby.PASAZER);
+        if (b < 1.0/5.0) role.add(typOsoby.PRACOWNIK);
+        Osoba os = Osoba.builder()
+                .imie(imie)
+                .nazwisko(nazwisko)
+                .email(imie+"_"+nazwisko+
+                        random.nextInt(1000)+"@"+
+                        dom1.get(random.nextInt(dom1.size()))+"."+
+                        dom2.get(random.nextInt(dom2.size())))
+                .telefon(String.valueOf(random.nextInt(500000000)+500000000))
+                .role(role)
+                .build();
+
+        return os;
     }
 }
