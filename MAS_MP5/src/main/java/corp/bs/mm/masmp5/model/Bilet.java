@@ -1,5 +1,7 @@
 package corp.bs.mm.masmp5.model;
 
+import corp.bs.mm.masmp5.enums.statusBiletu;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
@@ -22,6 +24,10 @@ public abstract class Bilet {
     @NotNull(message = "Price is mandatory")
     @Min(0)
     private double cena;
+
+    @NotNull
+    @Builder.Default
+    private statusBiletu status = statusBiletu.ZAREZERWOWANY;;
 
     @ManyToOne
     @JoinColumn(name = "stacjaOdjazd_id")

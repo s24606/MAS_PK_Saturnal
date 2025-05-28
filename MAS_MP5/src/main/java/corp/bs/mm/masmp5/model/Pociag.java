@@ -19,6 +19,10 @@ public class Pociag {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long pociagId;
 
+    @Column(unique = true)
+    @NotBlank
+    private String nazwa;
+
     @NotBlank
     private String przewoznik;
 

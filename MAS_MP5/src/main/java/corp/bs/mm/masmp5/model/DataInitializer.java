@@ -1,5 +1,6 @@
 package corp.bs.mm.masmp5.model;
 
+import corp.bs.mm.masmp5.enums.typMiejsca;
 import corp.bs.mm.masmp5.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -9,7 +10,9 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -26,6 +29,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
     private final PolaczenieRepository polaczenieRepository;
 
     private final PociagRepository pociagRepository;
+    private final MiejsceRepository miejsceRepository;
 
     private final PrzesiadkowyPolaczenieRepository przesiadkowyPolaczenieRepository;
 
@@ -47,6 +51,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         Pociag poc = Pociag.builder()
                 .przewoznik("Koleje Mazowieckie")
                 .obowiazekRezerwacjiMiejsc(false)
+                .nazwa("Torpeda")
                 .build();
 
         Stacja st1 = Stacja.builder()
@@ -99,9 +104,26 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                 .nrMiejsca(177)
                 .build();
 
+        ArrayList<Miejsce> miejsca = new ArrayList<>();
+        for(int i=1; i<=10; i++) {
+            double a = Math.random();
+            double b = Math.random();
+            double c = Math.random();
+            List<typMiejsca> typ = new ArrayList<>();
+            if (a > 0.5) typ.add(typMiejsca.STOLIK);
+            if (b > 0.6) typ.add(typMiejsca.ROWEROWE);
+            if (c > 0.4) typ.add(typMiejsca.INWALIDA);
+            Miejsce m = Miejsce.builder()
+                    .typ(typ)
+                    .nrMiejsca(i)
+                    .build();
+            miejsca.add(m);
+        }
+
 
         stacjaRepository.saveAll(Arrays.asList(st1, st2));
         pociagRepository.saveAll(Arrays.asList(poc));
+        miejsceRepository.saveAll(miejsca);
         polaczenieRepository.saveAll(Arrays.asList(pol));
         postojRepository.saveAll(Arrays.asList(pos1, pos2));
         biletRepository.saveAll(Arrays.asList(bp,bb1,bb2));
