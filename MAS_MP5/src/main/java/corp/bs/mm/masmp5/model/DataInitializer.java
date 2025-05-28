@@ -60,6 +60,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                 .obowiazekRezerwacjiMiejsc(false)
                 .nazwa("Torpeda")
                 .build();
+        pociagRepository.saveAll(Arrays.asList(poc));
 
         Stacja st1 = Stacja.builder()
                 .nazwa("Warszawa Centralna")
@@ -117,6 +118,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
             double aw = Math.random();
             Wagon w = Wagon.builder()
                     .numeracja(aw < 0.5 ? typWagonu.BEZNUMERACJI : typWagonu.ZNUMERACJA)
+                    .pociag(poc)
                     .nrWagonu(i)
                     .build();
             w = wagonRepository.save(w);
@@ -141,7 +143,6 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
 
 
         stacjaRepository.saveAll(Arrays.asList(st1, st2));
-        pociagRepository.saveAll(Arrays.asList(poc));
         miejsceRepository.saveAll(allMiejsca);
         polaczenieRepository.saveAll(Arrays.asList(pol));
         postojRepository.saveAll(Arrays.asList(pos1, pos2));

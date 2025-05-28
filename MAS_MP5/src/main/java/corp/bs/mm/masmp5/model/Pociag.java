@@ -26,6 +26,7 @@ public class Pociag {
     @NotBlank
     private String przewoznik;
 
+    @Setter(AccessLevel.NONE)
     @NotNull
     private boolean obowiazekRezerwacjiMiejsc;
 
@@ -33,4 +34,44 @@ public class Pociag {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Polaczenie> polaczenia = new HashSet<>();
+
+    @OneToMany(mappedBy = "pociag")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Wagon> wagony = new HashSet<>();
+
+    public static class PociagBuilder {
+        public Pociag build() {
+            Pociag pociag = new Pociag(pociagId, nazwa, przewoznik, obowiazekRezerwacjiMiejsc, polaczenia, wagony);
+            if (pociag.wagony != null) {
+                for (Wagon wagon : pociag.wagony) {
+                    wagon.setPociag(pociag);
+                }
+            }
+            return pociag;
+        }
+    }
+
+    public void setObowiazekRezerwacjiMiejsc(boolean obowiazekRezerwacjiMiejsc) {
+        this.obowiazekRezerwacjiMiejsc = obowiazekRezerwacjiMiejsc;
+        if (wagony != null) {
+            this.setWagony(wagony);
+        }
+    }
+
+    public void setWagony(Set<Wagon> wagony) {
+        this.wagony = wagony;
+        if (wagony != null) {
+            for (Wagon wagon : wagony) {
+                wagon.setPociag(this);
+            }
+        }
+    }
+
+    public void addWagon(Wagon wagon) {
+        wagony.add(wagon);
+        wagon.setPociag(this);
+    }
+
+
 }
