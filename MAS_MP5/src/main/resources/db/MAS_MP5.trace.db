@@ -860,3 +860,12 @@ SELECT m.miejsce_id, m.nr_miejsca mt.typ
 FROM miejsce m
 LEFT JOIN miejsce_typy mt ON m.miejsce_id = mt.miejsce_id
 ORDER BY m.miejsce_id [42000-224]
+2025-05-28 18:28:07.202084+02:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLDataException: Błąd konwersji danych "CHARACTER VARYING to DECFLOAT"
+Data conversion error converting "CHARACTER VARYING to DECFLOAT"; SQL statement:
+SELECT COUNT(DISTINCT m.miejsce_id) AS liczba_miejsc
+FROM miejsce m
+JOIN wagon w ON m.wagon_id = w.wagon_id
+JOIN miejsce_typy mt ON m.miejsce_id = mt.miejsce_id
+WHERE w.nr_wagonu = 3
+  AND mt.typ = 2 [22018-224]
