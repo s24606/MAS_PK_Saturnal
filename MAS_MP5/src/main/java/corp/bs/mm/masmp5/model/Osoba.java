@@ -7,18 +7,20 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.validator.constraints.UniqueElements;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class Osoba {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -43,6 +45,12 @@ public class Osoba {
     private String email;
 
     @NotBlank
-    @Pattern(regexp = "\\d+", message = "Numer telefonu może zawierać tylko cyfry")
+    @Pattern(regexp = "\\d{9,14}", message = "Numer telefonu musi byc ciagiem cyfr o dlugosci od 9 do 14 znakow")
     private String telefon;
+
+    @OneToMany(mappedBy = "kupujacy", cascade = CascadeType.REMOVE)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Okaziciel> okaziciele = new HashSet<>();
+
 }

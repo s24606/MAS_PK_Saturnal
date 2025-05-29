@@ -9,6 +9,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -36,6 +39,12 @@ public abstract class Bilet {
     @ManyToOne
     @JoinColumn(name = "stacjaPrzyjazd_id")
     private Stacja stacjaPrzyjazd;
+
+    @OneToMany(mappedBy = "bilet", cascade = CascadeType.REMOVE)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Okaziciel> okaziciele = new HashSet<>();
+
 
     @AssertTrue(message = "Stacja odjazdu i przyjazdu muszą być różne")
     private boolean isStacjeRozne() {
