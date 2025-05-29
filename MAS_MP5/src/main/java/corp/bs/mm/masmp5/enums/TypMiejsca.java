@@ -1,5 +1,5 @@
 package corp.bs.mm.masmp5.enums;
 
-public enum typMiejsca {
+public enum TypMiejsca {
     INWALIDA, STOLIK, ROWEROWE
 }

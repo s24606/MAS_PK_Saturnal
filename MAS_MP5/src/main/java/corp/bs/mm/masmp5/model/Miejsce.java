@@ -1,6 +1,6 @@
 package corp.bs.mm.masmp5.model;
 
-import corp.bs.mm.masmp5.enums.typMiejsca;
+import corp.bs.mm.masmp5.enums.TypMiejsca;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -28,12 +28,12 @@ public class Miejsce {
     @NotNull
     private int nrMiejsca;
 
-    @ElementCollection(targetClass = typMiejsca.class, fetch = FetchType.EAGER)
+    @ElementCollection(targetClass = TypMiejsca.class, fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "miejsce_typy", joinColumns = @JoinColumn(name = "miejsce_id"))
     @Column(name = "typ")
     @UniqueElements(message = "Typy miejsca nie mogą się powtarzać")
-    private List<typMiejsca> typ = new ArrayList<>();
+    private List<TypMiejsca> typ = new ArrayList<>();
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "wagon_id", nullable = false, updatable = false)

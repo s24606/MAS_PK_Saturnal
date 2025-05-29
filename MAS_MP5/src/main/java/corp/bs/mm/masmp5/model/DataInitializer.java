@@ -1,8 +1,9 @@
 package corp.bs.mm.masmp5.model;
 
-import corp.bs.mm.masmp5.enums.typMiejsca;
-import corp.bs.mm.masmp5.enums.typOsoby;
-import corp.bs.mm.masmp5.enums.typWagonu;
+import corp.bs.mm.masmp5.enums.TypMiejsca;
+import corp.bs.mm.masmp5.enums.TypOsoby;
+import corp.bs.mm.masmp5.enums.TypUlgi;
+import corp.bs.mm.masmp5.enums.TypWagonu;
 import corp.bs.mm.masmp5.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -52,11 +53,23 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
 
     private void initialData() throws Exception {
 
+        ArrayList<Osoba> osoby = new ArrayList<>();
+        ArrayList<Osoba> pasazerowie = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Osoba osoba = generateOsoba();
+            osobaRepository.save(osoba);
+            osoby.add(osoba);
+            if(osoba.getRole().contains(TypOsoby.PASAZER))
+                pasazerowie.add(osoba);
+        }
+
+        Random rand = new Random();
         BiletPrzesiadkowy bp = BiletPrzesiadkowy.builder()
                 .cena(14.45)
                 .czasOdjazdu(LocalDateTime.of(2025, 5, 21, 14, 30))
                 .czasPrzyjazdu(LocalDateTime.of(2025, 5, 21, 15, 40))
                 .marginesBledu(60)
+                .kupujacy(pasazerowie.get(rand.nextInt(pasazerowie.size())))
                 .build();
 
         Pociag poc = Pociag.builder()
@@ -107,6 +120,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                 .stacjaOdjazd(st1)
                 .stacjaPrzyjazd(st2)
                 .polaczenie(pol)
+                .kupujacy(pasazerowie.get(rand.nextInt(pasazerowie.size())))
                 .build();
         BiletBezposredni bb2 = BiletBezposredni.builder()
                 .cena(7.34)
@@ -114,6 +128,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                 .stacjaPrzyjazd(st2)
                 .polaczenie(pol)
                 .nrMiejsca(177)
+                .kupujacy(pasazerowie.get(rand.nextInt(pasazerowie.size())))
                 .build();
 
 
@@ -121,7 +136,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         for (int i = 1; i <= 6; i++) {
             double aw = Math.random();
             Wagon w = Wagon.builder()
-                    .numeracja(aw < 0.5 ? typWagonu.BEZNUMERACJI : typWagonu.ZNUMERACJA)
+                    .numeracja(aw < 0.5 ? TypWagonu.BEZNUMERACJI : TypWagonu.ZNUMERACJA)
                     .pociag(poc)
                     .nrWagonu(i)
                     .build();
@@ -131,10 +146,10 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                 double a = Math.random();
                 double b = Math.random();
                 double c = Math.random();
-                List<typMiejsca> typ = new ArrayList<>();
-                if (a > 0.5) typ.add(typMiejsca.STOLIK);
-                if (b > 0.6) typ.add(typMiejsca.ROWEROWE);
-                if (c > 0.4) typ.add(typMiejsca.INWALIDA);
+                List<TypMiejsca> typ = new ArrayList<>();
+                if (a > 0.5) typ.add(TypMiejsca.STOLIK);
+                if (b > 0.6) typ.add(TypMiejsca.ROWEROWE);
+                if (c > 0.4) typ.add(TypMiejsca.INWALIDA);
 
                 Miejsce m = Miejsce.builder()
                         .typ(typ)
@@ -146,9 +161,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         }
 
 
-        for (int i = 0; i < 10; i++) {
-            osobaRepository.save(generateOsoba());
-        }
+
 
 
 
@@ -197,11 +210,31 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         List<String> dom2 = Arrays.asList("pl", "com", "gov", "net", "de");
         double a = Math.random();
         double b = Math.random();
-        List<typOsoby> role = new ArrayList<>();
-        if (a < 1.0/2.0) role.add(typOsoby.PASAZER);
+        List<TypOsoby> role = new ArrayList<>();
+        TypUlgi ulga=null;
+        String kod = null;
+        if (a < 1.0/2.0)
+        {
+            role.add(TypOsoby.PASAZER);
+        }
         else {
-            role.add(typOsoby.PRACOWNIK);
-            if (b < 1.0/2.0) role.add(typOsoby.PASAZER);
+            role.add(TypOsoby.PRACOWNIK);
+            String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; // A-Z i 0-9
+            StringBuilder result = new StringBuilder(10);
+            for (int i = 0; i < 10; i++) {
+                int randomIndex = random.nextInt(characters.length());
+                result.append(characters.charAt(randomIndex));
+            }
+            kod = String.valueOf(result);
+
+            if (b < 1.0/2.0) {
+                role.add(TypOsoby.PASAZER);
+            }
+        }
+
+        if(role.contains(TypOsoby.PASAZER)){
+            TypUlgi[] values = TypUlgi.values();
+            ulga = values[random.nextInt(values.length)];
         }
         Osoba os = Osoba.builder()
                 .imie(imie)
@@ -212,6 +245,8 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                         dom2.get(random.nextInt(dom2.size())))
                 .telefon(String.valueOf(random.nextInt(500000000)+500000000))
                 .role(role)
+                .kodSluzbowy(kod)
+                .ulga(ulga)
                 .build();
 
         return os;

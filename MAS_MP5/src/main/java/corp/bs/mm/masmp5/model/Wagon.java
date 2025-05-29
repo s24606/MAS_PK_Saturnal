@@ -1,6 +1,6 @@
 package corp.bs.mm.masmp5.model;
 
-import corp.bs.mm.masmp5.enums.typWagonu;
+import corp.bs.mm.masmp5.enums.TypWagonu;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -29,21 +29,21 @@ public class Wagon {
 
     @NotNull
     @Setter(AccessLevel.NONE)
-    private typWagonu numeracja;
+    private TypWagonu numeracja;
 
     @ManyToOne
     @JoinColumn(name = "pociag_id")
     private Pociag pociag;
 
     public int getPojemnosc() throws Exception {
-        if(numeracja == typWagonu.ZNUMERACJA)
+        if(numeracja == TypWagonu.ZNUMERACJA)
             return miejsca.size();
-        if(numeracja == typWagonu.BEZNUMERACJI)
+        if(numeracja == TypWagonu.BEZNUMERACJI)
             return (int)(miejsca.size()*maksymalna_pojemnosc);
         throw new Exception("nie mozna pobrac pojemnosci - niesprecyzowany typ wagonu");
     }
 
-    public void changeTypWagonu(typWagonu newTyp){
+    public void changeTypWagonu(TypWagonu newTyp){
         if (this.pociag != null) {
             throw new IllegalStateException("Nie można zmienić typu wagonu, ponieważ jest on powiązany z pociągiem.");
         }
@@ -52,7 +52,7 @@ public class Wagon {
         }
     }
 
-    public void setNumeracja(typWagonu newTyp) {
+    public void setNumeracja(TypWagonu newTyp) {
         if (this.pociag != null) {
             throw new IllegalStateException("Nie można zmienić typu wagonu, ponieważ jest on powiązany z pociągiem.");
         }
@@ -60,7 +60,7 @@ public class Wagon {
     }
 
     public double getMaksymalna_pojemnosc() throws Exception {
-        if(numeracja == typWagonu.BEZNUMERACJI)
+        if(numeracja == TypWagonu.BEZNUMERACJI)
             return maksymalna_pojemnosc;
         throw new Exception("nie mozna pobrac maksymalnej pojemnosci - zly typ wagonu");
     }
@@ -68,14 +68,14 @@ public class Wagon {
     public void setPociag(Pociag pociag) {
         this.pociag = pociag;
         if (pociag != null) {
-            this.numeracja = pociag.isObowiazekRezerwacjiMiejsc() ? typWagonu.ZNUMERACJA : typWagonu.BEZNUMERACJI;
+            this.numeracja = pociag.isObowiazekRezerwacjiMiejsc() ? TypWagonu.ZNUMERACJA : TypWagonu.BEZNUMERACJI;
         }
     }
     public static class WagonBuilder {
         public Wagon build() {
             Wagon wagon = new Wagon(wagonId, nrWagonu, miejsca, numeracja, pociag);
             if (wagon.pociag != null) {
-                wagon.numeracja = wagon.pociag.isObowiazekRezerwacjiMiejsc() ? typWagonu.ZNUMERACJA : typWagonu.BEZNUMERACJI;
+                wagon.numeracja = wagon.pociag.isObowiazekRezerwacjiMiejsc() ? TypWagonu.ZNUMERACJA : TypWagonu.BEZNUMERACJI;
             }
             return wagon;
         }

@@ -1,7 +1,7 @@
 package corp.bs.mm.masmp5.model;
 
-import corp.bs.mm.masmp5.enums.statusBiletu;
-import jakarta.annotation.Nullable;
+import corp.bs.mm.masmp5.enums.StatusBiletu;
+import corp.bs.mm.masmp5.model.constraints.KupujacyPasazerValidation;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
@@ -27,7 +27,7 @@ public abstract class Bilet {
 
     @NotNull
     @Builder.Default
-    private statusBiletu status = statusBiletu.ZAREZERWOWANY;;
+    private StatusBiletu status = StatusBiletu.ZAREZERWOWANY;;
 
     @ManyToOne
     @JoinColumn(name = "stacjaOdjazd_id")
@@ -44,6 +44,11 @@ public abstract class Bilet {
         }
         return !stacjaOdjazd.equals(stacjaPrzyjazd);
     }
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "kupujacy_id", nullable = false, updatable = false)
+    @KupujacyPasazerValidation
+    private Osoba kupujacy;
 }
 
 
