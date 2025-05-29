@@ -30,11 +30,13 @@ public class Pociag {
     @NotNull
     private boolean obowiazekRezerwacjiMiejsc;
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "pociagKursujacy", cascade = CascadeType.REMOVE)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Polaczenie> polaczenia = new HashSet<>();
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "pociag")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

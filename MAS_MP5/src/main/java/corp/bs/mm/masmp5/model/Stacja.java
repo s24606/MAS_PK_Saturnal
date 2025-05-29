@@ -29,17 +29,20 @@ public class Stacja {
     @Min(1)
     private int tory;
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "stacja", cascade = CascadeType.REMOVE)
     @OrderBy("planowanyCzasOdjazdu ASC")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Postoj> postoje = new ArrayList<>();
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "stacja", cascade = CascadeType.REMOVE)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Postoj> biletyZ = new HashSet<>();
 
+    @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "stacja", cascade = CascadeType.REMOVE)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

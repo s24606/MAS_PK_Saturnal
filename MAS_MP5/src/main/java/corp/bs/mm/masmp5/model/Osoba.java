@@ -69,7 +69,7 @@ public class Osoba {
             return ulga;
         else return null;
     }
-    public void setUlga(@Nullable TypUlgi ulga) throws Exception {
+    public void setUlga(TypUlgi ulga) throws Exception {
         if(role.contains(TypOsoby.PASAZER))
             this.ulga = ulga;
         else throw new Exception("dane dostepne tylko dla obiektów z rolą PASAZER");
@@ -80,7 +80,7 @@ public class Osoba {
             return kodSluzbowy;
         else return null;
     }
-    public void setKodSluzbowy(@Nullable String kodSluzbowy) throws Exception {
+    public void setKodSluzbowy(String kodSluzbowy) throws Exception {
         if(role.contains(TypOsoby.PRACOWNIK))
             this.kodSluzbowy = kodSluzbowy;
         else throw new Exception("dane dostepne tylko dla obiektów z rolą PRACOWNIK");
