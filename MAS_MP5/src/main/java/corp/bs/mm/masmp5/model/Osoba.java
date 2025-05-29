@@ -5,6 +5,7 @@ import corp.bs.mm.masmp5.enums.typOsoby;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,6 +29,7 @@ public class Osoba {
     @CollectionTable(name = "osoba_role", joinColumns = @JoinColumn(name = "osoba_id"))
     @Column(name = "rola")
     @UniqueElements(message = "role w osobie nie mogą się powtarzać")
+    @NotEmpty(message = "Lista ról nie może być pusta")
     private List<typOsoby> role = new ArrayList<>();
 
     @NotBlank

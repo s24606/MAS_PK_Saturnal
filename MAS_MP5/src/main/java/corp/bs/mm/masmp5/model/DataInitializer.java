@@ -199,7 +199,10 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         double b = Math.random();
         List<typOsoby> role = new ArrayList<>();
         if (a < 1.0/2.0) role.add(typOsoby.PASAZER);
-        if (b < 1.0/5.0) role.add(typOsoby.PRACOWNIK);
+        else {
+            role.add(typOsoby.PRACOWNIK);
+            if (b < 1.0/2.0) role.add(typOsoby.PASAZER);
+        }
         Osoba os = Osoba.builder()
                 .imie(imie)
                 .nazwisko(nazwisko)
