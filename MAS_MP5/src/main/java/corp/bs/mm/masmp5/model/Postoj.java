@@ -1,6 +1,7 @@
 package corp.bs.mm.masmp5.model;
 
 import corp.bs.mm.masmp5.model.constraints.CzasPostojuValidation;
+import corp.bs.mm.masmp5.model.constraints.MaxOneStacjaPoczatkowaValidation;
 import corp.bs.mm.masmp5.model.constraints.NrToruValidation;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+//@MaxOneStacjaPoczatkowaValidation
 @NrToruValidation
 @CzasPostojuValidation
 @Entity
@@ -38,9 +40,9 @@ public class Postoj {
     @NotNull
     private Polaczenie polaczenie;
 
-    @NotNull
+    @Nullable
     private LocalDateTime planowanyCzasPrzyjazdu;
-    @NotNull
+    @Nullable
     private LocalDateTime planowanyCzasOdjazdu;
     @Nullable
     private LocalDateTime FaktycznyCzasPrzyjazdu;
@@ -50,5 +52,9 @@ public class Postoj {
     @NotNull
     @Min(1)
     private Integer nrToru;
+
+    public int getNrPeronu(){
+        return (nrToru+1)/2;
+    }
 
 }

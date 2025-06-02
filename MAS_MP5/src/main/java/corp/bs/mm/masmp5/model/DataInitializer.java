@@ -8,15 +8,14 @@ import corp.bs.mm.masmp5.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cglib.core.Local;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -53,9 +52,12 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
 
     private void initialData() throws Exception {
 
+        Random rand = new Random();
+
+        //generowanie osob
         ArrayList<Osoba> osoby = new ArrayList<>();
         ArrayList<Osoba> pasazerowie = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 1000; i++) {
             Osoba osoba = generateOsoba();
             osobaRepository.save(osoba);
             osoby.add(osoba);
@@ -63,7 +65,158 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                 pasazerowie.add(osoba);
         }
 
-        Random rand = new Random();
+        //generowanie pociagow
+        ArrayList<String> nazwyPociagow = new ArrayList<>(Arrays.asList(
+                "Pendolino", "Lukowianka", "Chopin",
+                "Mickiewicz", "Orzeszkowa", "Szyndzielnia",
+                "Słowacki", "Giewont", "Tatry",
+                "Kopernik", "Kormoran", "Norwid",
+                "Warta", "Bombardier", "Sloneczny",
+                "Rysy", "Sobieski", "Żubr",
+                "Łokietek", "Moniuszko", "Bieszczady",
+                "Mazury", "Reymont", "Kaszub"
+        ));
+        ArrayList<String> przewoznicy = new ArrayList<>(Arrays.asList(
+                "KM","IC","TLK","REGIO"
+        ));
+        ArrayList<Pociag> pociagi = new ArrayList<>();
+        for(String n: nazwyPociagow){
+            Pociag poc = Pociag.builder()
+                    .przewoznik(przewoznicy.get(rand.nextInt(przewoznicy.size())))
+                    .obowiazekRezerwacjiMiejsc(Math.random() > 0.5)
+                    .nazwa(n)
+                    .build();
+            pociagRepository.save(poc);
+            pociagi.add(poc);
+        }
+
+        //generowanie wagonow i miejsc
+        ArrayList<Miejsce> allMiejsca = new ArrayList<>();
+        for(Pociag poc: pociagi) {
+            int iloscWagonow = (int)(Math.random()*5+5);
+            for (int i = 1; i <= iloscWagonow; i++) {
+                Wagon w = Wagon.builder()
+                        .pociag(poc)
+                        .nrWagonu(i)
+                        .build();
+                w = wagonRepository.save(w);
+
+                int iloscMiejsc = (int)(Math.random()*50+50);
+                for (int j = 1; j <= iloscMiejsc; j++) {
+                    double a = Math.random();
+                    double b = Math.random();
+                    double c = Math.random();
+                    List<TypMiejsca> typ = new ArrayList<>();
+                    if (a > 0.5) typ.add(TypMiejsca.STOLIK);
+                    if (b > 0.05) typ.add(TypMiejsca.ROWEROWE);
+                    if (c > 0.15) typ.add(TypMiejsca.INWALIDA);
+
+                    Miejsce m = Miejsce.builder()
+                            .typ(typ)
+                            .nrMiejsca(j)
+                            .wagon(w)
+                            .build();
+                    allMiejsca.add(m);
+                }
+            }
+        }
+
+        //generowanie stacji
+        ArrayList<Stacja> stacje = new ArrayList<>();
+        ArrayList<String> miasta = new ArrayList<>(Arrays.asList(
+                "Warszawa", "Kraków", "Łódź", "Gorzów Wielkopolski",
+                "Wrocław", "Poznań", "Gdańsk", "Szczecin",
+                "Katowice", "Lublin", "Białystok", "Rzeszów",
+                "Opole", "Olsztyn", "Kielce", "Zielona Góra" ,
+                "Bydgoszcz", "Toruń"
+                ));
+        for(String miasto : miasta){
+            Stacja st = Stacja.builder()
+                    .nazwa(miasto)
+                    .tory((int)(Math.random()*8)+6)
+                    .build();
+            stacje.add(st);
+            stacjaRepository.save(st);
+        }
+
+
+        //generowanie polaczen i postojów
+        ArrayList<ArrayList<String>> linie = new ArrayList<>();
+        linie.add(new ArrayList<>(Arrays.asList("Gdańsk", "Olsztyn", "Warszawa", "Kielce", "Kraków")));
+        linie.add(new ArrayList<>(Arrays.asList("Szczecin", "Gorzów Wielkopolski", "Poznań", "Wrocław", "Opole", "Katowice")));
+        linie.add(new ArrayList<>(Arrays.asList("Opole", "Katowice", "Kraków", "Rzeszów", "Lublin")));
+        linie.add(new ArrayList<>(Arrays.asList("Gdańsk", "Bydgoszcz", "Toruń", "Łódź", "Katowice")));
+        linie.add(new ArrayList<>(Arrays.asList("Szczecin", "Gdańsk", "Olsztyn", "Białystok")));
+        linie.add(new ArrayList<>(Arrays.asList("Toruń", "Warszawa", "Lublin", "Rzeszów")));
+        linie.add(new ArrayList<>(Arrays.asList("Poznań", "Łódź", "Kielce", "Rzeszów")));
+        linie.add(new ArrayList<>(Arrays.asList("Opole", "Łódź", "Warszawa", "Białystok")));
+
+        ArrayList<Polaczenie> polaczenia = new ArrayList<>();
+        ArrayList<Postoj> postoje = new ArrayList<>();
+        for(Pociag p : pociagi){
+            int nrLinii=rand.nextInt(linie.size());
+            LocalDateTime termin = LocalDateTime.now().minusDays(7).withHour(0).withMinute(0).withNano(0);
+            LocalDateTime zakresRozkladu = termin.plusDays(30);
+
+            ArrayList<String> linia = linie.get(nrLinii);
+
+            while(termin.isBefore(zakresRozkladu)) {
+                Polaczenie pol = Polaczenie.builder()
+                        .oznaczeniePolaczenia(generujOznaczeniePolaczenia())
+                        .pociagKursujacy(p)
+                        .build();
+                polaczenieRepository.save(pol);
+                polaczenia.add(pol);
+
+                for (String miasto : linia) {
+                    Stacja st = stacje.get(miasta.indexOf(miasto));
+                    int czasPostoju = rand.nextInt(14) + 1;
+                    Postoj post = Postoj.builder()
+                            .polaczenie(pol)
+                            .stacja(st)
+                            .nrToru(rand.nextInt(st.getTory()) + 1)
+                            .planowanyCzasPrzyjazdu(termin)
+                            .planowanyCzasOdjazdu(termin.plusMinutes(czasPostoju))
+                            .build();
+                    postojRepository.save(post);
+                    postoje.add(post);
+                    termin = termin.plusMinutes(czasPostoju)
+                            .plusMinutes(rand.nextInt(90) + 60);
+                }
+                Collections.reverse(linia);
+            }
+        }
+
+        //generowanie biletow
+        ArrayList<Bilet> bilety =new ArrayList<>();
+        //generowanie biletow bezposrednich
+        ArrayList<BiletBezposredni> biletybezposrednie =new ArrayList<>();
+        double PRZELICZNIK_BB_GODZINOWY = 10.0;
+
+        for(int i=0;i<1000;i++) {
+            Polaczenie pol = polaczenia.get(rand.nextInt(polaczenia.size()));
+            List<Postoj> postojeZPolaczenia = postojRepository.findByPolaczenie(pol);
+            int st1 = rand.nextInt(postojeZPolaczenia.size()-1);
+            int st2 = st1 + 1 + rand.nextInt(postojeZPolaczenia.size() - st1 - 1);
+            double cenaBB = ((double) Duration.between(
+                    postojeZPolaczenia.get(st1).getPlanowanyCzasOdjazdu(),
+                    postojeZPolaczenia.get(st2).getPlanowanyCzasPrzyjazdu()
+            ).toMinutes()) / 60 * PRZELICZNIK_BB_GODZINOWY;
+            cenaBB = Math.round(cenaBB * 100.0) / 100.0;
+            BiletBezposredni bb = BiletBezposredni.builder()
+                    .cena(cenaBB)
+                    .stacjaOdjazd(postojeZPolaczenia.get(st1).getStacja())
+                    .stacjaPrzyjazd(postojeZPolaczenia.get(st2).getStacja())
+                    .polaczenie(pol)
+                    .kupujacy(pasazerowie.get(rand.nextInt(pasazerowie.size())))
+                    .build();
+            biletRepository.save(bb);
+            bilety.add(bb);
+            biletBezposredniRepository.save(bb);
+            biletybezposrednie.add(bb);
+        }
+
+        //generowanie biletow przesiadkowych
         BiletPrzesiadkowy bp = BiletPrzesiadkowy.builder()
                 .cena(14.45)
                 .czasOdjazdu(LocalDateTime.of(2025, 5, 21, 14, 30))
@@ -72,93 +225,16 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                 .kupujacy(pasazerowie.get(rand.nextInt(pasazerowie.size())))
                 .build();
 
-        Pociag poc = Pociag.builder()
-                .przewoznik("Koleje Mazowieckie")
-                .obowiazekRezerwacjiMiejsc(false)
-                .nazwa("Torpeda")
-                .build();
-        pociagRepository.saveAll(Arrays.asList(poc));
-
-        Stacja st1 = Stacja.builder()
-                .nazwa("Warszawa Centralna")
-                .tory(8)
-                .build();
-        Stacja st2 = Stacja.builder()
-                .nazwa("Warszawa Wschodnia")
-                .tory(12)
-                .build();
-        Polaczenie pol = Polaczenie.builder()
-                .oznaczeniePolaczenia("R2345")
-                .pociagKursujacy(poc)
-                .build();
-        Postoj pos1 = Postoj.builder()
-                .planowanyCzasPrzyjazdu(LocalDateTime.of(2025, 5, 21, 14, 30))
-                .planowanyCzasOdjazdu(LocalDateTime.of(2025, 5, 21, 14, 35))
-                .stacja(st1)
-                .nrToru(2)
-                .polaczenie(pol)
-                .build();
-        Postoj pos2 = Postoj.builder()
-                .planowanyCzasPrzyjazdu(LocalDateTime.of(2025, 5, 21, 14, 40))
-                .planowanyCzasOdjazdu(LocalDateTime.of(2025, 5, 21, 14, 55))
-                .stacja(st2)
-                .nrToru(2)
-                .polaczenie(pol)
-                .build();
         PrzesiadkowyPolaczenie pp1 = PrzesiadkowyPolaczenie.builder()
                 .biletPrzesiadkowy(bp)
-                .polaczenie(pol)
+                .polaczenie(polaczenia.get(rand.nextInt(polaczenia.size())))
                 .build();
-        //PrzesiadkowyPolaczenie pp2 = PrzesiadkowyPolaczenie.builder()
-        //        .biletPrzesiadkowy(bp)
-        //        .polaczenie(pol)
-        //        .build();
-
-
-        BiletBezposredni bb1 = BiletBezposredni.builder()
-                .cena(12.55)
-                .stacjaOdjazd(st1)
-                .stacjaPrzyjazd(st2)
-                .polaczenie(pol)
-                .kupujacy(pasazerowie.get(rand.nextInt(pasazerowie.size())))
-                .build();
-        BiletBezposredni bb2 = BiletBezposredni.builder()
-                .cena(7.34)
-                .stacjaOdjazd(st1)
-                .stacjaPrzyjazd(st2)
-                .polaczenie(pol)
-                .nrMiejsca(177)
-                .kupujacy(pasazerowie.get(rand.nextInt(pasazerowie.size())))
+        PrzesiadkowyPolaczenie pp2 = PrzesiadkowyPolaczenie.builder()
+                .biletPrzesiadkowy(bp)
+                .polaczenie(polaczenia.get(rand.nextInt(polaczenia.size())))
                 .build();
 
 
-        ArrayList<Miejsce> allMiejsca = new ArrayList<>();
-        for (int i = 1; i <= 6; i++) {
-            double aw = Math.random();
-            Wagon w = Wagon.builder()
-                    .numeracja(aw < 0.5 ? TypWagonu.BEZNUMERACJI : TypWagonu.ZNUMERACJA)
-                    .pociag(poc)
-                    .nrWagonu(i)
-                    .build();
-            w = wagonRepository.save(w);
-
-            for (int j = 1; j <= 10; j++) {
-                double a = Math.random();
-                double b = Math.random();
-                double c = Math.random();
-                List<TypMiejsca> typ = new ArrayList<>();
-                if (a > 0.5) typ.add(TypMiejsca.STOLIK);
-                if (b > 0.6) typ.add(TypMiejsca.ROWEROWE);
-                if (c > 0.4) typ.add(TypMiejsca.INWALIDA);
-
-                Miejsce m = Miejsce.builder()
-                        .typ(typ)
-                        .nrMiejsca(j)
-                        .wagon(w)
-                        .build();
-                allMiejsca.add(m);
-            }
-        }
 
 
 
@@ -166,18 +242,25 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
 
 
 
-        stacjaRepository.saveAll(Arrays.asList(st1, st2));
-        miejsceRepository.saveAll(allMiejsca);
-        polaczenieRepository.saveAll(Arrays.asList(pol));
-        postojRepository.saveAll(Arrays.asList(pos1, pos2));
-        biletRepository.saveAll(Arrays.asList(bp,bb1,bb2));
-        biletBezposredniRepository.saveAll(Arrays.asList(bb1,bb2));
         biletPrzesiadkowyRepository.saveAll(Arrays.asList(bp));
         przesiadkowyPolaczenieRepository.saveAll(Arrays.asList(pp1));
 
 
         logger.info("ok");
 
+    }
+
+    private String generujOznaczeniePolaczenia() {
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder();
+        sb.append("R");
+        sb.append(random.nextInt(10));
+        sb.append(random.nextInt(10));
+        sb.append("Z");
+        for (int i = 0; i < 4; i++) {
+            sb.append(random.nextInt(10));
+        }
+        return sb.toString();
     }
 
     private Osoba generateOsoba(){

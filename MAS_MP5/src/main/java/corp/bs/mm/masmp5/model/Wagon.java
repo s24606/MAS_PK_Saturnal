@@ -13,6 +13,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Wagon {
+    @Getter(AccessLevel.NONE)
     private final double maksymalna_pojemnosc=1.3;
 
     @Id

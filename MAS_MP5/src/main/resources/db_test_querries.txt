@@ -1,0 +1,8 @@
+--wyswietlenie postojow konkretnego pociagu
+SELECT po.*
+FROM Postoj po
+JOIN Polaczenie pol ON po.polaczenie_id = pol.polaczenie_Id
+JOIN Pociag p ON pol.kursujacy_id = p.pociag_Id
+WHERE p.pociag_Id = 5;
+
+
