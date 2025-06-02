@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.validator.constraints.UniqueElements;
 
 import java.util.ArrayList;
@@ -35,9 +37,11 @@ public class Miejsce {
     @CollectionTable(name = "miejsce_typy", joinColumns = @JoinColumn(name = "miejsce_id"))
     @Column(name = "typ")
     @UniqueElements(message = "Typy miejsca nie mogą się powtarzać")
+
     private List<TypMiejsca> typ = new ArrayList<>();
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "wagon_id", nullable = false, updatable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Wagon wagon;
 }

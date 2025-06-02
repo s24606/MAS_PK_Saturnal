@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -31,13 +33,15 @@ public class Pociag {
     private boolean obowiazekRezerwacjiMiejsc;
 
     @Setter(AccessLevel.NONE)
-    @OneToMany(mappedBy = "pociagKursujacy", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "pociagKursujacy", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.NO_ACTION)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Polaczenie> polaczenia = new HashSet<>();
 
     @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "pociag")
+    @OnDelete(action = OnDeleteAction.NO_ACTION)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Wagon> wagony = new HashSet<>();

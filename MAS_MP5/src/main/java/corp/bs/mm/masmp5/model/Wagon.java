@@ -4,6 +4,8 @@ import corp.bs.mm.masmp5.enums.TypWagonu;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,7 +25,7 @@ public class Wagon {
     @NotNull
     private int nrWagonu;
 
-    @OneToMany(mappedBy = "wagon", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "wagon", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Miejsce> miejsca = new HashSet<>();
@@ -34,6 +36,7 @@ public class Wagon {
 
     @ManyToOne
     @JoinColumn(name = "pociag_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private Pociag pociag;
 
     public int getPojemnosc() throws Exception {

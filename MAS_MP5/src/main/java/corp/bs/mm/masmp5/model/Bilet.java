@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter
@@ -48,6 +50,7 @@ public abstract class Bilet {
     @ManyToOne(optional = false)
     @JoinColumn(name = "kupujacy_id", nullable = false, updatable = false)
     @KupujacyPasazerValidation
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Osoba kupujacy;
 }
 

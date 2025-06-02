@@ -1,7 +1,6 @@
 package corp.bs.mm.masmp5.model;
 
 import corp.bs.mm.masmp5.model.constraints.CzasPostojuValidation;
-import corp.bs.mm.masmp5.model.constraints.MaxOneStacjaPoczatkowaValidation;
 import corp.bs.mm.masmp5.model.constraints.NrToruValidation;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -11,10 +10,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
-//@MaxOneStacjaPoczatkowaValidation
 @NrToruValidation
 @CzasPostojuValidation
 @Entity
@@ -32,11 +32,13 @@ public class Postoj {
 
     @ManyToOne
     @JoinColumn(name = "stacja_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @NotNull
     private Stacja stacja;
 
     @ManyToOne
     @JoinColumn(name = "polaczenie_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @NotNull
     private Polaczenie polaczenie;
 

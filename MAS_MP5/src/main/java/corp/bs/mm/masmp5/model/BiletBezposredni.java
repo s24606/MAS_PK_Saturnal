@@ -7,6 +7,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @SuperBuilder
 @Entity
@@ -21,7 +23,7 @@ public class BiletBezposredni extends Bilet{
 
     @Setter(AccessLevel.NONE)
     @ManyToOne
-    @JoinColumn(name = "polaczenie_id")//zeby zrobic z tego kompozycje: , nullable = false, updatable = false
-    // oraz dodac w polaczeniu: , cascade = CascadeType.REMOVE
+    @JoinColumn(name = "polaczenie_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Polaczenie polaczenie;
 }
