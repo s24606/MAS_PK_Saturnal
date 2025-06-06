@@ -47,9 +47,9 @@ public class Postoj {
     @Nullable
     private LocalDateTime planowanyCzasOdjazdu;
     @Nullable
-    private LocalDateTime FaktycznyCzasPrzyjazdu;
+    private LocalDateTime faktycznyCzasPrzyjazdu;
     @Nullable
-    private LocalDateTime FaktycznyCzasOdjazdu;
+    private LocalDateTime faktycznyCzasOdjazdu;
 
     @NotNull
     @Min(1)

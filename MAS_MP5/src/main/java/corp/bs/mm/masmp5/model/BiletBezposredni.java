@@ -21,6 +21,9 @@ public class BiletBezposredni extends Bilet{
     @Nullable
     private Integer nrMiejsca;
 
+    @Nullable
+    private Integer nrWagonu;
+
     @Setter(AccessLevel.NONE)
     @ManyToOne
     @JoinColumn(name = "polaczenie_id")

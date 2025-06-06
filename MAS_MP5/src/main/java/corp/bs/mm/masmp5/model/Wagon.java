@@ -2,6 +2,7 @@ package corp.bs.mm.masmp5.model;
 
 import corp.bs.mm.masmp5.enums.TypWagonu;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
@@ -14,15 +15,21 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"nrWagonu", "pociag_id"})
+        }
+)
 public class Wagon {
     @Getter(AccessLevel.NONE)
-    private final double maksymalna_pojemnosc=1.3;
+    private final double maksymalnaPojemnosc =1.3;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long wagonId;
 
     @NotNull
+    @Min(1)
     private int nrWagonu;
 
     @OneToMany(mappedBy = "wagon", cascade = CascadeType.REMOVE, orphanRemoval = true)
@@ -43,17 +50,8 @@ public class Wagon {
         if(numeracja == TypWagonu.ZNUMERACJA)
             return miejsca.size();
         if(numeracja == TypWagonu.BEZNUMERACJI)
-            return (int)(miejsca.size()*maksymalna_pojemnosc);
+            return (int)(miejsca.size()* maksymalnaPojemnosc);
         throw new Exception("nie mozna pobrac pojemnosci - niesprecyzowany typ wagonu");
-    }
-
-    public void changeTypWagonu(TypWagonu newTyp){
-        if (this.pociag != null) {
-            throw new IllegalStateException("Nie można zmienić typu wagonu, ponieważ jest on powiązany z pociągiem.");
-        }
-        if(newTyp!=numeracja){
-            numeracja=newTyp;
-        }
     }
 
     public void setNumeracja(TypWagonu newTyp) {
@@ -63,9 +61,9 @@ public class Wagon {
         this.numeracja = newTyp;
     }
 
-    public double getMaksymalna_pojemnosc() throws Exception {
+    public double getMaksymalnaPojemnosc() throws Exception {
         if(numeracja == TypWagonu.BEZNUMERACJI)
-            return maksymalna_pojemnosc;
+            return maksymalnaPojemnosc;
         throw new Exception("nie mozna pobrac maksymalnej pojemnosci - zly typ wagonu");
     }
 

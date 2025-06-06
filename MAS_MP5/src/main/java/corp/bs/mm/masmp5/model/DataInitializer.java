@@ -116,6 +116,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                             .nrMiejsca(j)
                             .wagon(w)
                             .build();
+                    miejsceRepository.save(m);
                     allMiejsca.add(m);
                 }
             }
@@ -171,12 +172,22 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                 for (String miasto : linia) {
                     Stacja st = stacje.get(miasta.indexOf(miasto));
                     int czasPostoju = rand.nextInt(14) + 1;
+                    LocalDateTime termin1 = termin;
+                    LocalDateTime termin2 = termin.plusMinutes(czasPostoju);
+                    //czy to stacja poczatkowa
+                    if(miasto.compareTo(linia.get(0))==0){
+                        termin1=null;
+                    }
+                    //czy to stacja koncowa
+                    if(miasto.compareTo(linia.get(linia.size()-1))==0){
+                        termin2=null;
+                    }
                     Postoj post = Postoj.builder()
                             .polaczenie(pol)
                             .stacja(st)
                             .nrToru(rand.nextInt(st.getTory()) + 1)
-                            .planowanyCzasPrzyjazdu(termin)
-                            .planowanyCzasOdjazdu(termin.plusMinutes(czasPostoju))
+                            .planowanyCzasPrzyjazdu(termin1)
+                            .planowanyCzasOdjazdu(termin2)
                             .build();
                     postojRepository.save(post);
                     postoje.add(post);

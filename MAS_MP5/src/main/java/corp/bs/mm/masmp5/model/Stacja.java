@@ -37,13 +37,13 @@ public class Stacja {
     private List<Postoj> postoje = new ArrayList<>();
 
     @Setter(AccessLevel.NONE)
-    @OneToMany(mappedBy = "stacja", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "stacja", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Postoj> biletyZ = new HashSet<>();
 
     @Setter(AccessLevel.NONE)
-    @OneToMany(mappedBy = "stacja", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "stacja", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Postoj> biletyDo = new HashSet<>();

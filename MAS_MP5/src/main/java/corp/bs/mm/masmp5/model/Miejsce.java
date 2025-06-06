@@ -2,6 +2,7 @@ package corp.bs.mm.masmp5.model;
 
 import corp.bs.mm.masmp5.enums.TypMiejsca;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,6 +31,7 @@ public class Miejsce {
     private Long miejsceId;
 
     @NotNull
+    @Min(1)
     private int nrMiejsca;
 
     @ElementCollection(targetClass = TypMiejsca.class, fetch = FetchType.EAGER)

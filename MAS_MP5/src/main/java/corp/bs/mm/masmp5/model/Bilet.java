@@ -33,10 +33,12 @@ public abstract class Bilet {
 
     @ManyToOne
     @JoinColumn(name = "stacjaOdjazd_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Stacja stacjaOdjazd;
 
     @ManyToOne
     @JoinColumn(name = "stacjaPrzyjazd_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Stacja stacjaPrzyjazd;
 
     @AssertTrue(message = "Stacja odjazdu i przyjazdu muszą być różne")
