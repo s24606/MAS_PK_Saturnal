@@ -9,6 +9,7 @@ import corp.bs.mm.masmp5.repository.PolaczenieRepository;
 import corp.bs.mm.masmp5.repository.StacjaRepository;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,7 +26,19 @@ public class MainFrame extends JFrame {
     private final OsobaRepository osobaRepo;
     private final PolaczenieRepository polaczenieRepo;
 
-
+    //atrybuty do wyszukiwania
+    @Getter
+    private Stacja stacjaStart;
+    @Getter
+    private Stacja stacjaEnd;
+    private Postoj postojStart;
+    private Postoj postojEnd;
+    @Getter
+    private LocalDateTime terminStart;
+    @Getter
+    private LocalDateTime terminEnd;
+    private LocalDateTime displayTerminPrev;
+    private LocalDateTime displayTerminNext;
 
 
     @Getter
@@ -45,6 +58,15 @@ public class MainFrame extends JFrame {
         this.polaczenieRepo = polaczenieRepo;
 
         this.zalogowanyUser = null;
+
+        stacjaStart=null;
+        stacjaEnd=null;
+        postojStart=null;
+        postojEnd=null;
+        terminStart=null;
+        terminEnd=null;
+        displayTerminPrev=null;
+        displayTerminNext=null;
 
         setTitle("Saturnal");
         setSize(700, 450);
@@ -188,4 +210,12 @@ public class MainFrame extends JFrame {
         cardLayout.show(cardsPanel, "HOME");
     }
 
+    public void setAtrybutyWyszukiwania(Stacja stacjaStart, Stacja stacjaEnd,
+                         LocalDateTime terminStart,
+                         LocalDateTime terminEnd){
+        this.stacjaStart=stacjaStart;
+        this.stacjaEnd=stacjaEnd;
+        this.terminStart=terminStart;
+        this.terminEnd=terminEnd;
+    }
 }

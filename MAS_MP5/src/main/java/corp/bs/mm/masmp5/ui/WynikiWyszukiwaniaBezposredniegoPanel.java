@@ -5,23 +5,30 @@ import corp.bs.mm.masmp5.repository.StacjaRepository;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 import java.time.LocalDateTime;
 
 public class WynikiWyszukiwaniaBezposredniegoPanel extends JPanel {
-
     public WynikiWyszukiwaniaBezposredniegoPanel(MainFrame mainFrame) {
 
+        Stacja stacjaStart = mainFrame.getStacjaStart();
+        Stacja stacjaEnd = mainFrame.getStacjaEnd();
+        LocalDateTime terminStart = mainFrame.getTerminStart();
+        LocalDateTime terminEnd = mainFrame.getTerminEnd();
         StacjaRepository stacjaRepo = mainFrame.getStacjaRepo();
         Color paleCyan = new Color(155, 255, 255);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(paleCyan);
 
         // Nagłówek
-        JLabel header = new JLabel("Połączenia "+"STACJASTART"+"-"+"STACJAEND"+" na "+"TERMIN");
-        header.setFont(header.getFont().deriveFont(Font.BOLD, 24f));
+        LocalDateTime termin = terminStart != null ? terminStart : terminEnd;
+        JLabel header = new JLabel("Połączenia " + stacjaStart.getNazwa() + " - " + stacjaEnd.getNazwa() +
+                " na " + termin.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));
+        header.setFont(header.getFont().deriveFont(Font.BOLD, 18f));
         header.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(header);
 
@@ -31,15 +38,18 @@ public class WynikiWyszukiwaniaBezposredniegoPanel extends JPanel {
         JPanel stacjePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         stacjePanel.setBackground(paleCyan);
         stacjePanel.add(new JLabel("Stacja początkowa:"));
-        List<String> nazwyStacji = stacjaRepo.findByOrderByNazwaAsc()
-                .stream()
-                .map(Stacja::getNazwa)
-                .toList();
+        List<Stacja> listaStacji = (List<Stacja>) stacjaRepo.findAll();
+        List<String> nazwyStacji = new ArrayList<>();
+        for (Stacja stacja : listaStacji) {
+            nazwyStacji.add(stacja.getNazwa());
+        }
         JComboBox<String> comboStart = new JComboBox<>(nazwyStacji.toArray(new String[0]));
         stacjePanel.add(comboStart);
+        comboStart.setSelectedIndex(nazwyStacji.indexOf(stacjaStart.getNazwa()));
         stacjePanel.add(new JLabel("Stacja końcowa:"));
         JComboBox<String> comboEnd = new JComboBox<>(nazwyStacji.toArray(new String[0]));
         stacjePanel.add(comboEnd);
+        comboEnd.setSelectedIndex(nazwyStacji.indexOf(stacjaEnd.getNazwa()));
 
         add(stacjePanel);
 
@@ -57,7 +67,8 @@ public class WynikiWyszukiwaniaBezposredniegoPanel extends JPanel {
         radioGroup.add(rbOdjazdu);
         radioGroup.add(rbPrzyjazdu);
 
-        rbOdjazdu.setSelected(true);
+        rbOdjazdu.setSelected(terminStart!=null);
+        rbPrzyjazdu.setSelected(terminEnd!=null);
         timePanel.add(rbOdjazdu);
         timePanel.add(rbPrzyjazdu);
 
@@ -82,17 +93,17 @@ public class WynikiWyszukiwaniaBezposredniegoPanel extends JPanel {
         JComboBox<String> yearCombo = new JComboBox<>(lata);
         yearCombo.setPreferredSize(new Dimension(60, 25));
 
-        LocalDateTime now = LocalDateTime.now();
-        dayCombo.setSelectedItem(String.valueOf(now.getDayOfMonth()));
-        monthCombo.setSelectedItem(String.valueOf(now.getMonthValue()));
-        yearCombo.setSelectedItem(String.valueOf(now.getYear()));
+        //przypisanie wartości comboboxom daty
+        dayCombo.setSelectedIndex(termin.getDayOfMonth()-1);
+        monthCombo.setSelectedIndex(termin.getMonthValue()-1);
+        yearCombo.setSelectedIndex(termin.getYear()==LocalDateTime.now().getYear()?0:1);
 
         // Czas (Spinner)
         SpinnerDateModel timeModel = new SpinnerDateModel();
         JSpinner timeSpinner = new JSpinner(timeModel);
         JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(timeSpinner, "HH:mm");
         timeSpinner.setEditor(timeEditor);
-        timeSpinner.setValue(new Date());
+        timeSpinner.setValue(Date.from((termin.atZone(ZoneId.systemDefault())).toInstant()));
 
         // Dodanie wszystkich elementów do panelu
         timePanel.add(dayCombo);

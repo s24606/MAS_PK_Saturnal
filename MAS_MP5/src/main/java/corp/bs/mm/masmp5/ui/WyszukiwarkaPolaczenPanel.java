@@ -8,6 +8,9 @@ import corp.bs.mm.masmp5.model.Stacja;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -42,10 +45,12 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
         formPanel.add(new JLabel("Stacja początkowa"), gbc);
 
         gbc.gridx = 1;
-        List<String> nazwyStacji = stacjaRepo.findByOrderByNazwaAsc()
-                .stream()
-                .map(Stacja::getNazwa)
-                .toList();
+        List<Stacja> listaStacji = (List<Stacja>) stacjaRepo.findAll();
+        List<String> nazwyStacji = new ArrayList<>();
+        nazwyStacji.add("");
+        for (Stacja stacja : listaStacji) {
+            nazwyStacji.add(stacja.getNazwa());
+        }
         JComboBox<String> comboStart = new JComboBox<>(nazwyStacji.toArray(new String[0]));
         comboStart.setPreferredSize(new Dimension(200, 25));
         formPanel.add(comboStart, gbc);
@@ -68,6 +73,7 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
         gbc.anchor = GridBagConstraints.CENTER;
         JLabel timeLabel = new JLabel("Wyszukaj po czasie...");
         formPanel.add(timeLabel, gbc);
+        LocalDateTime termin = LocalDateTime.now();
 
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
@@ -152,31 +158,45 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
         JButton btnTransfer = new JButton("Wyszukaj połączenia przesiadkowe");
 
         btnDirect.addActionListener(e -> {
-            // Sprawdzamy, czy panel z nazwą "WYNIKI_BEZPOSREDNIE" już istnieje
-            Component[] components = mainFrame.getCardsPanel().getComponents();
-            for (Component c : components) {
-                if ("WYNIKI_BEZPOSREDNIE".equals(c.getName())) {
-                    // Jeśli panel istnieje, usuwamy go
-                    mainFrame.getCardsPanel().remove(c);
-                    break;
+            if (comboStart.getSelectedIndex() != 0 && comboEnd.getSelectedIndex() != 0) {
+                Component[] components = mainFrame.getCardsPanel().getComponents();
+                for (Component c : components) {
+                    if ("WYNIKI_BEZPOSREDNIE".equals(c.getName())) {
+                        mainFrame.getCardsPanel().remove(c);
+                        break;
+                    }
                 }
+
+                int rok = Integer.parseInt((String) yearCombo.getSelectedItem());
+                LocalTime localTime = ((Date) timeSpinner.getValue()).toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalTime();
+                LocalDateTime terminResult= termin.
+                        withYear(rok).
+                        withMonth(monthCombo.getSelectedIndex()+1).
+                        withDayOfMonth(dayCombo.getSelectedIndex()+1).
+                        withHour(localTime.getHour()).
+                        withMinute(localTime.getMinute()).
+                        withSecond(0).
+                        withNano(0);
+                mainFrame.setAtrybutyWyszukiwania(
+                        listaStacji.get(comboStart.getSelectedIndex() - 1),
+                        listaStacji.get(comboEnd.getSelectedIndex() - 1),
+                        (rbOdjazdu.isSelected() ? terminResult : null),
+                        (rbPrzyjazdu.isSelected() ? terminResult : null)
+                );
+                // Tworzymy nowy panel z wynikami
+                WynikiWyszukiwaniaBezposredniegoPanel wynikiPanel = new WynikiWyszukiwaniaBezposredniegoPanel(mainFrame);
+                wynikiPanel.setName("WYNIKI_BEZPOSREDNIE");
+                mainFrame.getCardsPanel().add(wynikiPanel, "WYNIKI_BEZPOSREDNIE");
+
+
+                mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "WYNIKI_BEZPOSREDNIE");
+
+                // Odświeżamy layout
+                mainFrame.getCardsPanel().revalidate();
+                mainFrame.getCardsPanel().repaint();
             }
-
-            // Tworzymy nowy panel z wynikami
-            WynikiWyszukiwaniaBezposredniegoPanel wynikiPanel = new WynikiWyszukiwaniaBezposredniegoPanel(mainFrame);
-
-            // Ustawiamy nazwę dla nowego panelu
-            wynikiPanel.setName("WYNIKI_BEZPOSREDNIE");
-
-            // Dodajemy nowy panel do cardsPanel
-            mainFrame.getCardsPanel().add(wynikiPanel, "WYNIKI_BEZPOSREDNIE");
-
-            // Przełączamy na nowy panel
-            mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "WYNIKI_BEZPOSREDNIE");
-
-            // Odświeżamy layout
-            mainFrame.getCardsPanel().revalidate();
-            mainFrame.getCardsPanel().repaint();
         });
 
         buttonsPanel.add(btnDirect);
