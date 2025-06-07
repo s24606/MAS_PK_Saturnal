@@ -1,5 +1,9 @@
 package corp.bs.mm.masmp5.ui;
 
+import corp.bs.mm.masmp5.repository.StacjaRepository;
+import corp.bs.mm.masmp5.model.Stacja;
+
+
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDateTime;
@@ -8,7 +12,7 @@ import java.util.List;
 
 public class WyszukiwarkaPolaczenPanel extends JPanel {
 
-    public WyszukiwarkaPolaczenPanel(List<String> stacje) {
+    public WyszukiwarkaPolaczenPanel(StacjaRepository stacjaRepo) {
         Color paleCyan = new Color(155, 255, 255);
         setBackground(paleCyan);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -35,7 +39,11 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
         formPanel.add(new JLabel("Stacja początkowa"), gbc);
 
         gbc.gridx = 1;
-        JComboBox<String> comboStart = new JComboBox<>(stacje.toArray(new String[0]));
+        List<String> nazwyStacji = stacjaRepo.findByOrderByNazwaAsc()
+                .stream()
+                .map(Stacja::getNazwa)
+                .toList();
+        JComboBox<String> comboStart = new JComboBox<>(nazwyStacji.toArray(new String[0]));
         comboStart.setPreferredSize(new Dimension(200, 25));
         formPanel.add(comboStart, gbc);
 
@@ -45,7 +53,7 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
         formPanel.add(new JLabel("Stacja Końcowa"), gbc);
 
         gbc.gridx = 1;
-        JComboBox<String> comboEnd = new JComboBox<>(stacje.toArray(new String[0]));
+        JComboBox<String> comboEnd = new JComboBox<>(nazwyStacji.toArray(new String[0]));
         comboEnd.setPreferredSize(new Dimension(200, 25));
         formPanel.add(comboEnd, gbc);
 
@@ -61,17 +69,23 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
 
-        // Checkboxy
+        // Radio buttony
         gbc.gridy = 3;
-        JPanel checkboxes = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
-        checkboxes.setBackground(paleCyan);
-        JCheckBox cbOdjazdu = new JCheckBox("Odjazdu");
-        JCheckBox cbPrzyjazdu = new JCheckBox("Przyjazdu");
-        cbOdjazdu.setBackground(paleCyan);
-        cbPrzyjazdu.setBackground(paleCyan);
-        checkboxes.add(cbOdjazdu);
-        checkboxes.add(cbPrzyjazdu);
-        formPanel.add(checkboxes, gbc);
+        JPanel radioButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        radioButtons.setBackground(paleCyan);
+        JRadioButton rbOdjazdu = new JRadioButton("Odjazdu");
+        JRadioButton rbPrzyjazdu = new JRadioButton("Przyjazdu");
+        rbOdjazdu.setBackground(paleCyan);
+        rbPrzyjazdu.setBackground(paleCyan);
+
+        ButtonGroup radioGroup = new ButtonGroup();
+        radioGroup.add(rbOdjazdu);
+        radioGroup.add(rbPrzyjazdu);
+
+        rbOdjazdu.setSelected(true);
+        radioButtons.add(rbOdjazdu);
+        radioButtons.add(rbPrzyjazdu);
+        formPanel.add(radioButtons, gbc);
 
 
         String[] dni = new String[31];
@@ -116,6 +130,7 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
         dateTimePanel.add(monthCombo);
         dateTimePanel.add(yearCombo);
         dateTimePanel.add(timeSpinner);
+        dateTimePanel.setBackground(paleCyan);
         formPanel.add(dateTimePanel, gbc);
 
         // resetujemy gbc jeśli dalej coś dodajesz
