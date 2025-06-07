@@ -2,10 +2,15 @@ package corp.bs.mm.masmp5.ui;
 
 import corp.bs.mm.masmp5.enums.TypOsoby;
 import corp.bs.mm.masmp5.model.Osoba;
+import corp.bs.mm.masmp5.model.Postoj;
+import corp.bs.mm.masmp5.model.Stacja;
 import corp.bs.mm.masmp5.repository.OsobaRepository;
 import corp.bs.mm.masmp5.repository.PolaczenieRepository;
 import corp.bs.mm.masmp5.repository.StacjaRepository;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import javax.swing.*;
 import java.awt.*;
@@ -15,14 +20,21 @@ import java.util.stream.Collectors;
 
 public class MainFrame extends JFrame {
 
+    @Getter
     private final StacjaRepository stacjaRepo;
     private final OsobaRepository osobaRepo;
     private final PolaczenieRepository polaczenieRepo;
 
+
+
+
+    @Getter
     private Osoba zalogowanyUser;
+    @Getter
     private JPanel cardsPanel;
+    @Getter
     private CardLayout cardLayout;
-    private JPanel navBar; // ← przechowujemy referencję do navBar, by go przeładować
+    private JPanel navBar;
 
     public MainFrame(StacjaRepository stacjaRepo,
                      OsobaRepository osobaRepo,
@@ -48,7 +60,7 @@ public class MainFrame extends JFrame {
         homePanel.setBackground(new Color(255, 255, 155));
         homePanel.add(new JLabel("Witaj na stronie głównej!"));
 
-        JPanel searchPanel = new WyszukiwarkaPolaczenPanel(stacjaRepo);
+        JPanel searchPanel = new WyszukiwarkaPolaczenPanel(stacjaRepo, this);
 
         cardsPanel.add(homePanel, "HOME");
         cardsPanel.add(searchPanel, "SEARCH");
@@ -175,4 +187,5 @@ public class MainFrame extends JFrame {
     public void showHome() {
         cardLayout.show(cardsPanel, "HOME");
     }
+
 }

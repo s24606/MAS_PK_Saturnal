@@ -34,6 +34,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
     private final PociagRepository pociagRepository;
     private final WagonRepository wagonRepository;
     private final MiejsceRepository miejsceRepository;
+    private final TypMiejscaEntityRepository typMiejscaEntityRepository;
 
     private final PrzesiadkowyPolaczenieRepository przesiadkowyPolaczenieRepository;
 
@@ -92,6 +93,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
 
         //generowanie wagonow i miejsc
         ArrayList<Miejsce> allMiejsca = new ArrayList<>();
+        ArrayList<Wagon> allWagon = new ArrayList<>();
         for(Pociag poc: pociagi) {
             int iloscWagonow = (int)(Math.random()*5+5);
             for (int i = 1; i <= iloscWagonow; i++) {
@@ -100,23 +102,27 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                         .nrWagonu(i)
                         .build();
                 w = wagonRepository.save(w);
+                allWagon.add(w);
 
                 int iloscMiejsc = (int)(Math.random()*50+50);
                 for (int j = 1; j <= iloscMiejsc; j++) {
                     double a = Math.random();
                     double b = Math.random();
                     double c = Math.random();
-                    List<TypMiejsca> typ = new ArrayList<>();
-                    if (a > 0.5) typ.add(TypMiejsca.STOLIK);
-                    if (b > 0.05) typ.add(TypMiejsca.ROWEROWE);
-                    if (c > 0.15) typ.add(TypMiejsca.INWALIDA);
+                    //List<TypMiejsca> typ = new ArrayList<>();
+                    //if (a > 0.5) typ.add(TypMiejsca.STOLIK);
+                    //if (b > 0.05) typ.add(TypMiejsca.ROWEROWE);
+                    //if (c > 0.15) typ.add(TypMiejsca.INWALIDA);
 
                     Miejsce m = Miejsce.builder()
-                            .typ(typ)
+                            //.typyMiejsca(typ)
                             .nrMiejsca(j)
                             .wagon(w)
                             .build();
                     miejsceRepository.save(m);
+                    if (a > 0.5) typMiejscaEntityRepository.save(TypMiejscaEntity.builder().typ(TypMiejsca.STOLIK).miejsce(m).build());
+                    if (b > 0.05) typMiejscaEntityRepository.save(TypMiejscaEntity.builder().typ(TypMiejsca.ROWEROWE).miejsce(m).build());
+                    if (c > 0.15) typMiejscaEntityRepository.save(TypMiejscaEntity.builder().typ(TypMiejsca.INWALIDA).miejsce(m).build());
                     allMiejsca.add(m);
                 }
             }
@@ -255,6 +261,8 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
 
         biletPrzesiadkowyRepository.saveAll(Arrays.asList(bp));
         przesiadkowyPolaczenieRepository.saveAll(Arrays.asList(pp1));
+
+        //wagonRepository.delete(allWagon.get(0));
 
 
         logger.info("ok");

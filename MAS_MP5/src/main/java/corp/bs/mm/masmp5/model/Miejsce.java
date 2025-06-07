@@ -4,16 +4,15 @@ import corp.bs.mm.masmp5.enums.TypMiejsca;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.validator.constraints.UniqueElements;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Builder
 @Entity
@@ -34,13 +33,18 @@ public class Miejsce {
     @Min(1)
     private int nrMiejsca;
 
-    @ElementCollection(targetClass = TypMiejsca.class, fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    @CollectionTable(name = "miejsce_typy", joinColumns = @JoinColumn(name = "miejsce_id"))
-    @Column(name = "typ")
-    @UniqueElements(message = "Typy miejsca nie mogą się powtarzać")
+    @OneToMany(mappedBy = "miejsce", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<TypMiejscaEntity> typMiejsca = new HashSet<>();
 
-    private List<TypMiejsca> typ = new ArrayList<>();
+//    @ElementCollection(targetClass = TypMiejsca.class, fetch = FetchType.EAGER)
+//    @Enumerated(EnumType.STRING)
+//    @CollectionTable(name = "miejsce_typy", joinColumns = @JoinColumn(name = "miejsce_id"))
+//    @Column(name = "typ")
+//    @UniqueElements(message = "Typy miejsca nie mogą się powtarzać")
+//    @OnDelete(action = OnDeleteAction.CASCADE)
+//    private List<TypMiejsca> typ = new ArrayList<>();
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "wagon_id", nullable = false, updatable = false)

@@ -1,5 +1,6 @@
 package corp.bs.mm.masmp5.ui;
 
+import com.sun.tools.javac.Main;
 import corp.bs.mm.masmp5.repository.StacjaRepository;
 import corp.bs.mm.masmp5.model.Stacja;
 
@@ -11,8 +12,10 @@ import java.util.Date;
 import java.util.List;
 
 public class WyszukiwarkaPolaczenPanel extends JPanel {
+    private MainFrame mainFrame;
 
-    public WyszukiwarkaPolaczenPanel(StacjaRepository stacjaRepo) {
+    public WyszukiwarkaPolaczenPanel(StacjaRepository stacjaRepo, MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
         Color paleCyan = new Color(155, 255, 255);
         setBackground(paleCyan);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -147,6 +150,35 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
         buttonsPanel.setBackground(paleCyan);
         JButton btnDirect = new JButton("Wyszukaj połączenia bezpośrednie");
         JButton btnTransfer = new JButton("Wyszukaj połączenia przesiadkowe");
+
+        btnDirect.addActionListener(e -> {
+            // Sprawdzamy, czy panel z nazwą "WYNIKI_BEZPOSREDNIE" już istnieje
+            Component[] components = mainFrame.getCardsPanel().getComponents();
+            for (Component c : components) {
+                if ("WYNIKI_BEZPOSREDNIE".equals(c.getName())) {
+                    // Jeśli panel istnieje, usuwamy go
+                    mainFrame.getCardsPanel().remove(c);
+                    break;
+                }
+            }
+
+            // Tworzymy nowy panel z wynikami
+            WynikiWyszukiwaniaBezposredniegoPanel wynikiPanel = new WynikiWyszukiwaniaBezposredniegoPanel(mainFrame);
+
+            // Ustawiamy nazwę dla nowego panelu
+            wynikiPanel.setName("WYNIKI_BEZPOSREDNIE");
+
+            // Dodajemy nowy panel do cardsPanel
+            mainFrame.getCardsPanel().add(wynikiPanel, "WYNIKI_BEZPOSREDNIE");
+
+            // Przełączamy na nowy panel
+            mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "WYNIKI_BEZPOSREDNIE");
+
+            // Odświeżamy layout
+            mainFrame.getCardsPanel().revalidate();
+            mainFrame.getCardsPanel().repaint();
+        });
+
         buttonsPanel.add(btnDirect);
         buttonsPanel.add(btnTransfer);
 
