@@ -3,7 +3,6 @@ package corp.bs.mm.masmp5.ui;
 import corp.bs.mm.masmp5.model.Polaczenie;
 import corp.bs.mm.masmp5.model.Postoj;
 import corp.bs.mm.masmp5.model.Stacja;
-import corp.bs.mm.masmp5.repository.PolaczenieRepository;
 import corp.bs.mm.masmp5.repository.StacjaRepository;
 
 import javax.swing.*;
@@ -13,6 +12,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Date;
 import java.time.LocalDateTime;
@@ -72,8 +72,10 @@ public class WynikiWyszukiwaniaBezposredniegoPanel extends JPanel {
         radioGroup.add(rbOdjazdu);
         radioGroup.add(rbPrzyjazdu);
 
-        rbOdjazdu.setSelected(terminStart!=null);
-        rbPrzyjazdu.setSelected(terminEnd!=null);
+        if(terminStart!=null&&terminEnd==null)
+            rbOdjazdu.setSelected(true);
+        else
+            rbPrzyjazdu.setSelected(true);
         timePanel.add(rbOdjazdu);
         timePanel.add(rbPrzyjazdu);
 
@@ -125,45 +127,44 @@ public class WynikiWyszukiwaniaBezposredniegoPanel extends JPanel {
         JButton btnPrzesiadkowe = new JButton("Wyszukaj połączenia przesiadkowe");
 
         btnBezposrednie.addActionListener(e -> {
-            if (comboStart.getSelectedIndex() != 0 && comboEnd.getSelectedIndex() != 0) {
-                Component[] components = mainFrame.getCardsPanel().getComponents();
-                for (Component c : components) {
-                    if ("WYNIKI_BEZPOSREDNIE".equals(c.getName())) {
-                        mainFrame.getCardsPanel().remove(c);
-                        break;
-                    }
+            Component[] components = mainFrame.getCardsPanel().getComponents();
+            for (Component c : components) {
+                if ("WYNIKI_BEZPOSREDNIE".equals(c.getName())) {
+                    mainFrame.getCardsPanel().remove(c);
+                    break;
                 }
-
-                int rok = Integer.parseInt((String) yearCombo.getSelectedItem());
-                LocalTime time = ((Date) timeSpinner.getValue()).toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalTime();
-                LocalDateTime terminResult= termin.
-                        withYear(rok).
-                        withMonth(monthCombo.getSelectedIndex()+1).
-                        withDayOfMonth(dayCombo.getSelectedIndex()+1).
-                        withHour(time.getHour()).
-                        withMinute(time.getMinute()).
-                        withSecond(0).
-                        withNano(0);
-                mainFrame.setAtrybutyWyszukiwania(
-                        listaStacji.get(comboStart.getSelectedIndex()),
-                        listaStacji.get(comboEnd.getSelectedIndex()),
-                        (rbOdjazdu.isSelected() ? terminResult : null),
-                        (rbPrzyjazdu.isSelected() ? terminResult : null)
-                );
-                // Tworzymy nowy panel z wynikami
-                WynikiWyszukiwaniaBezposredniegoPanel wynikiPanel = new WynikiWyszukiwaniaBezposredniegoPanel(mainFrame);
-                wynikiPanel.setName("WYNIKI_BEZPOSREDNIE");
-                mainFrame.getCardsPanel().add(wynikiPanel, "WYNIKI_BEZPOSREDNIE");
-
-
-                mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "WYNIKI_BEZPOSREDNIE");
-
-                // Odświeżamy layout
-                mainFrame.getCardsPanel().revalidate();
-                mainFrame.getCardsPanel().repaint();
             }
+
+            int rok = Integer.parseInt((String) yearCombo.getSelectedItem());
+            LocalTime time = ((Date) timeSpinner.getValue()).toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalTime();
+            LocalDateTime terminResult = termin.
+                    withYear(rok).
+                    withMonth(monthCombo.getSelectedIndex() + 1).
+                    withDayOfMonth(dayCombo.getSelectedIndex() + 1).
+                    withHour(time.getHour()).
+                    withMinute(time.getMinute()).
+                    withSecond(0).
+                    withNano(0);
+            mainFrame.setAtrybutyWyszukiwania(
+                    listaStacji.get(comboStart.getSelectedIndex()),
+                    listaStacji.get(comboEnd.getSelectedIndex()),
+                    (rbOdjazdu.isSelected() ? terminResult : null),
+                    (rbPrzyjazdu.isSelected() ? terminResult : null)
+            );
+            // Tworzymy nowy panel z wynikami
+            WynikiWyszukiwaniaBezposredniegoPanel wynikiPanel = new WynikiWyszukiwaniaBezposredniegoPanel(mainFrame);
+            wynikiPanel.setName("WYNIKI_BEZPOSREDNIE");
+            mainFrame.getCardsPanel().add(wynikiPanel, "WYNIKI_BEZPOSREDNIE");
+
+
+            mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "WYNIKI_BEZPOSREDNIE");
+
+            // Odświeżamy layout
+            mainFrame.getCardsPanel().revalidate();
+            mainFrame.getCardsPanel().repaint();
+
         });
 
         btnPrzesiadkowe.addActionListener(e -> {
@@ -287,17 +288,112 @@ public class WynikiWyszukiwaniaBezposredniegoPanel extends JPanel {
 
             add(Box.createRigidArea(new Dimension(0, 15)));
 
-            // Tworzymy panel poziomy z dwoma przyciskami
+            // Przyciski do wcześniejszych i późniejszych połączeń
             JPanel horizontalPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 100, 0));  // FlowLayout z lewym wyrównaniem
             horizontalPanel.setBackground(paleCyan);
             JButton btnEarlier = new JButton("Wyszukaj wcześniejsze połączenia");
             JButton btnLater = new JButton("Wyszukaj późniejsze połączenia");
-            btnLater.setPreferredSize(
-                    new Dimension(btnEarlier.getPreferredSize().width,
-                            btnLater.getPreferredSize().height)
-            );
-            horizontalPanel.add(btnEarlier);
-            horizontalPanel.add(btnLater);
+
+            Dimension buttonSize = new Dimension(btnEarlier.getPreferredSize().width,
+                    btnLater.getPreferredSize().height);
+            btnLater.setPreferredSize(buttonSize);
+
+            if (indexPierwszegoWidocznego > 0) {
+                horizontalPanel.add(btnEarlier);
+            } else {
+                JLabel emptyLabel = new JLabel();
+                emptyLabel.setPreferredSize(buttonSize);
+                horizontalPanel.add(emptyLabel);
+            }
+
+            if (indexPierwszegoWidocznego < wyszukanePolaczenia.size() - 5) {
+                horizontalPanel.add(btnLater);
+            } else {
+                JLabel emptyLabel = new JLabel();
+                emptyLabel.setPreferredSize(buttonSize);
+                horizontalPanel.add(emptyLabel);
+            }
+
+            btnEarlier.addActionListener(e -> {
+                int index = 0;
+                for (int i = 0; i < wyszukanePolaczenia.size(); i++) {
+                    if (wyszukanePolaczenia.get(i).equals(pierwszeWidoczne))
+                        index = i;
+                }
+
+                if (index != 0) {
+
+                    index -= 5;
+                    if (wyszukanePolaczenia.size() - widocznailosc < index)
+                        index = wyszukanePolaczenia.size() - widocznailosc;
+                    if (index < 0)
+                        index = 0;
+
+                    Component[] components = mainFrame.getCardsPanel().getComponents();
+                    for (Component c : components) {
+                        if ("WYNIKI_BEZPOSREDNIE".equals(c.getName())) {
+                            mainFrame.getCardsPanel().remove(c);
+                            break;
+                        }
+                    }
+
+                    HashMap<Long, Postoj> mapaPostoje;
+                    if (mainFrame.getTerminStart() != null) mapaPostoje = mainFrame.getWyszukanePostojeS();
+                    else mapaPostoje = mainFrame.getWyszukanePostojeE();
+
+                    ArrayList<Postoj> postoje = MainFrame.sortujPostojePoCzasie(mapaPostoje, mainFrame.getTerminStart()!=null);
+                    if (mainFrame.getTerminStart() != null) mainFrame.setTerminStart(postoje.get(index).getPlanowanyCzasOdjazdu());
+                    else mainFrame.setTerminEnd(postoje.get(index).getPlanowanyCzasPrzyjazdu());
+
+                    WynikiWyszukiwaniaBezposredniegoPanel wynikiPanel = new WynikiWyszukiwaniaBezposredniegoPanel(mainFrame);
+                    wynikiPanel.setName("WYNIKI_BEZPOSREDNIE");
+                    mainFrame.getCardsPanel().add(wynikiPanel, "WYNIKI_BEZPOSREDNIE");
+                    mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "WYNIKI_BEZPOSREDNIE");
+                    mainFrame.getCardsPanel().revalidate();
+                    mainFrame.getCardsPanel().repaint();
+                }
+            });
+
+            btnLater.addActionListener(e -> {
+                int index = 0;
+                for (int i = 0; i < wyszukanePolaczenia.size(); i++) {
+                    if (wyszukanePolaczenia.get(i).equals(pierwszeWidoczne))
+                        index = i;
+                }
+
+                if (index < wyszukanePolaczenia.size()-5) {
+
+                    index += 5;
+                    if (wyszukanePolaczenia.size() - widocznailosc < index)
+                        index = wyszukanePolaczenia.size() - widocznailosc;
+                    if (index < 0)
+                        index = 0;
+
+                    Component[] components = mainFrame.getCardsPanel().getComponents();
+                    for (Component c : components) {
+                        if ("WYNIKI_BEZPOSREDNIE".equals(c.getName())) {
+                            mainFrame.getCardsPanel().remove(c);
+                            break;
+                        }
+                    }
+
+                    HashMap<Long, Postoj> mapaPostoje;
+                    if (mainFrame.getTerminStart() != null) mapaPostoje = mainFrame.getWyszukanePostojeS();
+                    else mapaPostoje = mainFrame.getWyszukanePostojeE();
+
+                    ArrayList<Postoj> postoje = MainFrame.sortujPostojePoCzasie(mapaPostoje, mainFrame.getTerminStart()!=null);
+                    if (mainFrame.getTerminStart() != null) mainFrame.setTerminStart(postoje.get(index).getPlanowanyCzasOdjazdu());
+                    else mainFrame.setTerminEnd(postoje.get(index).getPlanowanyCzasPrzyjazdu());
+
+                    WynikiWyszukiwaniaBezposredniegoPanel wynikiPanel = new WynikiWyszukiwaniaBezposredniegoPanel(mainFrame);
+                    wynikiPanel.setName("WYNIKI_BEZPOSREDNIE");
+                    mainFrame.getCardsPanel().add(wynikiPanel, "WYNIKI_BEZPOSREDNIE");
+                    mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "WYNIKI_BEZPOSREDNIE");
+                    mainFrame.getCardsPanel().revalidate();
+                    mainFrame.getCardsPanel().repaint();
+                }
+            });
+
             add(horizontalPanel);
 
         } else {

@@ -10,7 +10,6 @@ import corp.bs.mm.masmp5.repository.PolaczenieRepository;
 import corp.bs.mm.masmp5.repository.StacjaRepository;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.cglib.core.Local;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -33,9 +32,11 @@ public class MainFrame extends JFrame {
     private Stacja stacjaStart;
     @Getter
     private Stacja stacjaEnd;
+    @Setter
     @Getter
     private LocalDateTime terminStart;
     @Getter
+    @Setter
     private LocalDateTime terminEnd;
     @Getter
     private Polaczenie bestPolaczenie;
@@ -270,43 +271,58 @@ public class MainFrame extends JFrame {
             terminDocelowy = terminEnd;
             refMap = mapaPostojE;
         }
-        Postoj najblizszyPostoj = znajdzNajblizszyPostoj(refMap, terminDocelowy);
+        Postoj najblizszyPostoj = znajdzNajblizszyPostoj(refMap, terminDocelowy, this.terminStart!=null);
+        // lokalizacja najblizsze polaczenie na podstawie najblizszego postoju
+        Long najbliszePolaczenieId = null;
+        for (Map.Entry<Long, Postoj> entry : refMap.entrySet()) {
+            if (entry.getValue().equals(najblizszyPostoj)) {
+                najbliszePolaczenieId = entry.getKey();
+            }
+        }
 
-        ArrayList<Postoj> sortedPostoje = sortujPostojePoCzasieOdjazdu(mapaPostojS);
+
+        ArrayList<Postoj> sortedPostoje = sortujPostojePoCzasie(mapaPostojS, true);
         refMap = mapaPostojS;
-
+        //przygotowanie ArrayList posortowanych polaczen
         ArrayList<Polaczenie> sortedPolaczenia = new ArrayList<>();
         for(Postoj pos : sortedPostoje){
             Long polaczenieId = null;
-            Long najbliszePolaczenieId = null;
             for (Map.Entry<Long, Postoj> entry : refMap.entrySet()) {
                 if (entry.getValue().equals(pos)) {
                     polaczenieId = entry.getKey();
-                }
-                if (entry.getValue().equals(najblizszyPostoj)) {
-                    najbliszePolaczenieId = entry.getKey();
                 }
             }
             Polaczenie szukane = null;
             for(Polaczenie pol : matchingPolaczenia) {
                 if (Objects.equals(pol.getPolaczenieId(), polaczenieId))
                     szukane = pol;
+                //przypisanie najbliszego polaczenie na podstawie wczesniej znalezionego Id
                 if (Objects.equals(pol.getPolaczenieId(), najbliszePolaczenieId))
                     this.bestPolaczenie = pol;
             }
             sortedPolaczenia.add(szukane);
         }
+
+
+
         this.wyszukanePostojeS=mapaPostojS;
         this.wyszukanePostojeE=mapaPostojE;
 
         return sortedPolaczenia;
     }
 
-    public static ArrayList<Postoj> sortujPostojePoCzasieOdjazdu(HashMap<Long, Postoj> mapaPostojow) {
+    public static ArrayList<Postoj> sortujPostojePoCzasie(HashMap<Long, Postoj> mapaPostojow, boolean sortByOdjazdT) {
         ArrayList<Postoj> sortedPostoje = new ArrayList<>(mapaPostojow.values());
         sortedPostoje.sort((postoj1, postoj2) -> {
-            LocalDateTime czasOdjazdu1 = (postoj1.getPlanowanyCzasOdjazdu() != null) ? postoj1.getPlanowanyCzasOdjazdu() : LocalDateTime.MIN;
-            LocalDateTime czasOdjazdu2 = (postoj2.getPlanowanyCzasOdjazdu() != null) ? postoj2.getPlanowanyCzasOdjazdu() : LocalDateTime.MIN;
+            LocalDateTime czasOdjazdu1;
+            LocalDateTime czasOdjazdu2;
+            if(sortByOdjazdT) {
+                czasOdjazdu1 = (postoj1.getPlanowanyCzasOdjazdu() != null) ? postoj1.getPlanowanyCzasOdjazdu() : LocalDateTime.MAX;
+                czasOdjazdu2 = (postoj2.getPlanowanyCzasOdjazdu() != null) ? postoj2.getPlanowanyCzasOdjazdu() : LocalDateTime.MAX;
+            } else {
+                czasOdjazdu1 = (postoj1.getPlanowanyCzasPrzyjazdu() != null) ? postoj1.getPlanowanyCzasPrzyjazdu() : LocalDateTime.MAX;
+                czasOdjazdu2 = (postoj2.getPlanowanyCzasPrzyjazdu() != null) ? postoj2.getPlanowanyCzasPrzyjazdu() : LocalDateTime.MAX;
+            }
             long roznica1 = Math.abs(Duration.between(LocalDateTime.MIN, czasOdjazdu1).toMinutes());
             long roznica2 = Math.abs(Duration.between(LocalDateTime.MIN, czasOdjazdu2).toMinutes());
             return Long.compare(roznica1, roznica2);
@@ -315,14 +331,18 @@ public class MainFrame extends JFrame {
         return sortedPostoje;
     }
 
-    public static Postoj znajdzNajblizszyPostoj(HashMap<Long, Postoj> mapaPostojow, LocalDateTime terminDocelowy) {
+    public static Postoj znajdzNajblizszyPostoj(HashMap<Long, Postoj> mapaPostojow, LocalDateTime terminDocelowy, boolean valueByOdjazd) {
         ArrayList<Postoj> sortedPostoje = new ArrayList<>(mapaPostojow.values());
         Postoj najblizszyPostoj = null;
         long minimalnaRoznica = Long.MAX_VALUE;
 
         for (Postoj postoj : sortedPostoje) {
-            LocalDateTime czasPrzyjazdu = (postoj.getPlanowanyCzasPrzyjazdu() != null) ? postoj.getPlanowanyCzasPrzyjazdu() : LocalDateTime.MAX;
-            long roznica = Math.abs(Duration.between(terminDocelowy, czasPrzyjazdu).toMinutes());
+            LocalDateTime czasXjazdu;
+            if(valueByOdjazd)
+                czasXjazdu = (postoj.getPlanowanyCzasOdjazdu() != null) ? postoj.getPlanowanyCzasOdjazdu() : LocalDateTime.MAX;
+            else
+                czasXjazdu = (postoj.getPlanowanyCzasPrzyjazdu() != null) ? postoj.getPlanowanyCzasPrzyjazdu() : LocalDateTime.MAX;
+            long roznica = Math.abs(Duration.between(terminDocelowy, czasXjazdu).toMinutes());
             if (roznica < minimalnaRoznica) {
                 minimalnaRoznica = roznica;
                 najblizszyPostoj = postoj;
