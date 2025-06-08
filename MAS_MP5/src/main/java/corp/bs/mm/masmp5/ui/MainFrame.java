@@ -37,7 +37,12 @@ public class MainFrame extends JFrame {
     private LocalDateTime terminStart;
     @Getter
     private LocalDateTime terminEnd;
-    private ArrayList<Polaczenie> wyszukanePolaczenia;
+    @Getter
+    private Polaczenie bestPolaczenie;
+    @Getter
+    HashMap<Long, Postoj> wyszukanePostojeS = new HashMap<>();
+    @Getter
+    HashMap<Long, Postoj> wyszukanePostojeE = new HashMap<>();
     private LocalDateTime displayTerminPrev;
     private LocalDateTime displayTerminNext;
 
@@ -64,7 +69,7 @@ public class MainFrame extends JFrame {
         stacjaEnd=null;
         terminStart=null;
         terminEnd=null;
-        wyszukanePolaczenia=new ArrayList<>();
+        bestPolaczenie=null;
         displayTerminPrev=null;
         displayTerminNext=null;
 
@@ -255,59 +260,75 @@ public class MainFrame extends JFrame {
                 mapaPostojS.put(postojS.getPolaczenie().getPolaczenieId(),postojS);
 
 
-        ArrayList<Postoj> sortedPostoje;
         HashMap <Long, Postoj> refMap;
-        if(terminStart!=null){
-            sortedPostoje = sortujPostojePoCzasieOdjazdu(mapaPostojS, terminStart);
+        LocalDateTime terminDocelowy;
+        if(terminStart!=null) {
+            terminDocelowy = terminStart;
             refMap = mapaPostojS;
-        }else{
-            sortedPostoje = sortujPostojePoCzasiePrzyjazdu(mapaPostojE, terminEnd);
+        }
+        else {
+            terminDocelowy = terminEnd;
             refMap = mapaPostojE;
         }
+        Postoj najblizszyPostoj = znajdzNajblizszyPostoj(refMap, terminDocelowy);
+
+        ArrayList<Postoj> sortedPostoje = sortujPostojePoCzasieOdjazdu(mapaPostojS);
+        refMap = mapaPostojS;
 
         ArrayList<Polaczenie> sortedPolaczenia = new ArrayList<>();
         for(Postoj pos : sortedPostoje){
             Long polaczenieId = null;
+            Long najbliszePolaczenieId = null;
             for (Map.Entry<Long, Postoj> entry : refMap.entrySet()) {
                 if (entry.getValue().equals(pos)) {
                     polaczenieId = entry.getKey();
                 }
+                if (entry.getValue().equals(najblizszyPostoj)) {
+                    najbliszePolaczenieId = entry.getKey();
+                }
             }
             Polaczenie szukane = null;
-            for(Polaczenie pol : matchingPolaczenia)
-                if(Objects.equals(pol.getPolaczenieId(), polaczenieId))
+            for(Polaczenie pol : matchingPolaczenia) {
+                if (Objects.equals(pol.getPolaczenieId(), polaczenieId))
                     szukane = pol;
-
+                if (Objects.equals(pol.getPolaczenieId(), najbliszePolaczenieId))
+                    this.bestPolaczenie = pol;
+            }
             sortedPolaczenia.add(szukane);
         }
+        this.wyszukanePostojeS=mapaPostojS;
+        this.wyszukanePostojeE=mapaPostojE;
 
         return sortedPolaczenia;
     }
 
-    public static ArrayList<Postoj> sortujPostojePoCzasieOdjazdu(HashMap<Long, Postoj> mapaPostojow, LocalDateTime terminDocelowy) {
+    public static ArrayList<Postoj> sortujPostojePoCzasieOdjazdu(HashMap<Long, Postoj> mapaPostojow) {
         ArrayList<Postoj> sortedPostoje = new ArrayList<>(mapaPostojow.values());
         sortedPostoje.sort((postoj1, postoj2) -> {
-            LocalDateTime czasOdjazdu1 = (postoj1.getPlanowanyCzasOdjazdu() != null) ? postoj1.getPlanowanyCzasOdjazdu() : LocalDateTime.MAX;
-            LocalDateTime czasOdjazdu2 = (postoj2.getPlanowanyCzasOdjazdu() != null) ? postoj2.getPlanowanyCzasOdjazdu() : LocalDateTime.MAX;
-            long roznica1 = Math.abs(Duration.between(terminDocelowy, czasOdjazdu1).toMinutes());
-            long roznica2 = Math.abs(Duration.between(terminDocelowy, czasOdjazdu2).toMinutes());
+            LocalDateTime czasOdjazdu1 = (postoj1.getPlanowanyCzasOdjazdu() != null) ? postoj1.getPlanowanyCzasOdjazdu() : LocalDateTime.MIN;
+            LocalDateTime czasOdjazdu2 = (postoj2.getPlanowanyCzasOdjazdu() != null) ? postoj2.getPlanowanyCzasOdjazdu() : LocalDateTime.MIN;
+            long roznica1 = Math.abs(Duration.between(LocalDateTime.MIN, czasOdjazdu1).toMinutes());
+            long roznica2 = Math.abs(Duration.between(LocalDateTime.MIN, czasOdjazdu2).toMinutes());
             return Long.compare(roznica1, roznica2);
         });
 
         return sortedPostoje;
     }
 
-    public static ArrayList<Postoj> sortujPostojePoCzasiePrzyjazdu(HashMap<Long, Postoj> mapaPostojow, LocalDateTime terminDocelowy) {
+    public static Postoj znajdzNajblizszyPostoj(HashMap<Long, Postoj> mapaPostojow, LocalDateTime terminDocelowy) {
         ArrayList<Postoj> sortedPostoje = new ArrayList<>(mapaPostojow.values());
-        sortedPostoje.sort((postoj1, postoj2) -> {
-            LocalDateTime czasPrzyjazdu1 = (postoj1.getPlanowanyCzasPrzyjazdu() != null) ? postoj1.getPlanowanyCzasPrzyjazdu() : LocalDateTime.MAX;
-            LocalDateTime czasPrzyjazdu2 = (postoj2.getPlanowanyCzasPrzyjazdu() != null) ? postoj2.getPlanowanyCzasPrzyjazdu() : LocalDateTime.MAX;
-            long roznica1 = Math.abs(Duration.between(terminDocelowy, czasPrzyjazdu1).toMinutes());
-            long roznica2 = Math.abs(Duration.between(terminDocelowy, czasPrzyjazdu2).toMinutes());
-            return Long.compare(roznica1, roznica2);
-        });
+        Postoj najblizszyPostoj = null;
+        long minimalnaRoznica = Long.MAX_VALUE;
 
-        return sortedPostoje;
+        for (Postoj postoj : sortedPostoje) {
+            LocalDateTime czasPrzyjazdu = (postoj.getPlanowanyCzasPrzyjazdu() != null) ? postoj.getPlanowanyCzasPrzyjazdu() : LocalDateTime.MAX;
+            long roznica = Math.abs(Duration.between(terminDocelowy, czasPrzyjazdu).toMinutes());
+            if (roznica < minimalnaRoznica) {
+                minimalnaRoznica = roznica;
+                najblizszyPostoj = postoj;
+            }
+        }
+        return najblizszyPostoj;
     }
 
 

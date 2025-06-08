@@ -155,10 +155,10 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
         // Przyciski
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         buttonsPanel.setBackground(paleCyan);
-        JButton btnDirect = new JButton("Wyszukaj połączenia bezpośrednie");
-        JButton btnTransfer = new JButton("Wyszukaj połączenia przesiadkowe");
+        JButton btnBezposrednie = new JButton("Wyszukaj połączenia bezpośrednie");
+        JButton btnPrzesiadkowe = new JButton("Wyszukaj połączenia przesiadkowe");
 
-        btnDirect.addActionListener(e -> {
+        btnBezposrednie.addActionListener(e -> {
             if (comboStart.getSelectedIndex() != 0 && comboEnd.getSelectedIndex() != 0) {
                 Component[] components = mainFrame.getCardsPanel().getComponents();
                 for (Component c : components) {
@@ -199,9 +199,12 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
                 mainFrame.getCardsPanel().repaint();
             }
         });
+        btnPrzesiadkowe.addActionListener(e -> {
+                JOptionPane.showMessageDialog(this, "Funkcja obecnie niedostępna.");
+        });
 
-        buttonsPanel.add(btnDirect);
-        buttonsPanel.add(btnTransfer);
+        buttonsPanel.add(btnBezposrednie);
+        buttonsPanel.add(btnPrzesiadkowe);
 
         add(buttonsPanel);
     }

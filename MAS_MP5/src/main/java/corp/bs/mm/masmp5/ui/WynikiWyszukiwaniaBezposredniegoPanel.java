@@ -1,12 +1,15 @@
 package corp.bs.mm.masmp5.ui;
 
 import corp.bs.mm.masmp5.model.Polaczenie;
+import corp.bs.mm.masmp5.model.Postoj;
 import corp.bs.mm.masmp5.model.Stacja;
 import corp.bs.mm.masmp5.repository.PolaczenieRepository;
 import corp.bs.mm.masmp5.repository.StacjaRepository;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.Duration;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -118,116 +121,199 @@ public class WynikiWyszukiwaniaBezposredniegoPanel extends JPanel {
         // Przyciski
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         buttonsPanel.setBackground(paleCyan);
-        JButton btnDirect = new JButton("Wyszukaj połączenia bezpośrednie");
-        JButton btnTransfer = new JButton("Wyszukaj połączenia przesiadkowe");
+        JButton btnBezposrednie = new JButton("Wyszukaj połączenia bezpośrednie");
+        JButton btnPrzesiadkowe = new JButton("Wyszukaj połączenia przesiadkowe");
 
-        btnDirect.addActionListener(e -> {
-            Component[] components = mainFrame.getCardsPanel().getComponents();
-            for (Component c : components) {
-                if ("WYNIKI_BEZPOSREDNIE".equals(c.getName())) {
-                    mainFrame.getCardsPanel().remove(c);
-                    break;
-                }
-            }
-            WynikiWyszukiwaniaBezposredniegoPanel wynikiPanel = new WynikiWyszukiwaniaBezposredniegoPanel(mainFrame);
-            wynikiPanel.setName("WYNIKI_BEZPOSREDNIE");
-            mainFrame.getCardsPanel().add(wynikiPanel, "WYNIKI_BEZPOSREDNIE");
-            mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "WYNIKI_BEZPOSREDNIE");
-
-            mainFrame.getCardsPanel().revalidate();
-            mainFrame.getCardsPanel().repaint();
-        });
-
-        buttonsPanel.add(btnDirect);
-        buttonsPanel.add(btnTransfer);
-
-        add(buttonsPanel);
-
-        // GridLayout
-        JPanel gridPanel = new JPanel(new GridLayout(6, 5, 0,0)); // Wąskie odstępy
-        gridPanel.setBackground(new Color(83, 145, 234));
-        gridPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-
-
-
-
-
-
-
-        ArrayList<Polaczenie> wyszukanePolaczenia = mainFrame.findPolaczeniaForStacje();
-
-
-
-
-
-
-        // Pierwszy rząd - Nagłówki
-        ArrayList<String> gridHeaders = new ArrayList<>(List.of(
-                "Nr połączenia", "Data odjazdu", "Czas", "Przewoźnik", "Akcje"
-        ));
-        for (String gridHeader : gridHeaders) {
-            JLabel headerLabel = new JLabel(gridHeader, SwingConstants.CENTER);
-            headerLabel.setForeground(Color.WHITE);
-            gridPanel.add(headerLabel);
-        }
-
-        // Dodanie lini między komórkami i wypełnienie komórek danymi (w tym przyciskami)
-        for (int i = 0; i < 5 && i < wyszukanePolaczenia.size(); i++) {
-            Polaczenie wyswietlanePolaczenie = wyszukanePolaczenia.get(i);
-            for (int j = 0; j < 5; j++) {
-                JPanel cellPanel = new JPanel();
-                cellPanel.setBackground(new Color(225, 255, 255));
-                cellPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-
-                // Ustawiamy layout na BoxLayout, aby przyciski były jeden pod drugim
-                cellPanel.setLayout(new BoxLayout(cellPanel, BoxLayout.Y_AXIS));
-
-                if (j == 0) {
-                    JLabel oznaczenie = new JLabel(wyswietlanePolaczenie.getOznaczeniePolaczenia());
-                    oznaczenie.setHorizontalAlignment(SwingConstants.CENTER);
-                    oznaczenie.setAlignmentX(Component.CENTER_ALIGNMENT);
-                    cellPanel.add(oznaczenie);
-                }
-
-                if (j == 3) {
-                    JLabel przewoznik = new JLabel(wyswietlanePolaczenie.getPociagKursujacy().getPrzewoznik());
-                    przewoznik.setHorizontalAlignment(SwingConstants.CENTER);
-                    przewoznik.setAlignmentX(Component.CENTER_ALIGNMENT);
-                    cellPanel.add(przewoznik);
-                }
-
-                // ostatnia kolumna (indeks 4) - dodajemy przyciski
-                if (j == 4) {
-                    JButton detailsButton = new JButton("Szczegóły");
-                    detailsButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-                    cellPanel.add(detailsButton);
-
-                    if (mainFrame.getZalogowanyUser() != null) {
-                        JButton buyTicketButton = new JButton("Kup Bilet");
-                        cellPanel.add(buyTicketButton);
+        btnBezposrednie.addActionListener(e -> {
+            if (comboStart.getSelectedIndex() != 0 && comboEnd.getSelectedIndex() != 0) {
+                Component[] components = mainFrame.getCardsPanel().getComponents();
+                for (Component c : components) {
+                    if ("WYNIKI_BEZPOSREDNIE".equals(c.getName())) {
+                        mainFrame.getCardsPanel().remove(c);
+                        break;
                     }
                 }
 
-                gridPanel.add(cellPanel);
+                int rok = Integer.parseInt((String) yearCombo.getSelectedItem());
+                LocalTime time = ((Date) timeSpinner.getValue()).toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalTime();
+                LocalDateTime terminResult= termin.
+                        withYear(rok).
+                        withMonth(monthCombo.getSelectedIndex()+1).
+                        withDayOfMonth(dayCombo.getSelectedIndex()+1).
+                        withHour(time.getHour()).
+                        withMinute(time.getMinute()).
+                        withSecond(0).
+                        withNano(0);
+                mainFrame.setAtrybutyWyszukiwania(
+                        listaStacji.get(comboStart.getSelectedIndex()),
+                        listaStacji.get(comboEnd.getSelectedIndex()),
+                        (rbOdjazdu.isSelected() ? terminResult : null),
+                        (rbPrzyjazdu.isSelected() ? terminResult : null)
+                );
+                // Tworzymy nowy panel z wynikami
+                WynikiWyszukiwaniaBezposredniegoPanel wynikiPanel = new WynikiWyszukiwaniaBezposredniegoPanel(mainFrame);
+                wynikiPanel.setName("WYNIKI_BEZPOSREDNIE");
+                mainFrame.getCardsPanel().add(wynikiPanel, "WYNIKI_BEZPOSREDNIE");
+
+
+                mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "WYNIKI_BEZPOSREDNIE");
+
+                // Odświeżamy layout
+                mainFrame.getCardsPanel().revalidate();
+                mainFrame.getCardsPanel().repaint();
             }
+        });
+
+        btnPrzesiadkowe.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "Funkcja obecnie niedostępna.");
+        });
+
+        buttonsPanel.add(btnBezposrednie);
+        buttonsPanel.add(btnPrzesiadkowe);
+
+        add(buttonsPanel);
+
+
+        ArrayList<Polaczenie> wyszukanePolaczenia = mainFrame.findPolaczeniaForStacje();
+        if(!wyszukanePolaczenia.isEmpty()) {
+            // GridLayout
+            JPanel gridPanel = new JPanel(new GridLayout(6, 5, 0, 0));
+            gridPanel.setBackground(new Color(83, 145, 234));
+            gridPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+            Polaczenie pierwszeWidoczne = mainFrame.getBestPolaczenie();
+            int indexPierwszegoWidocznego = 0;
+            for (int i = 0; i < wyszukanePolaczenia.size(); i++) {
+                if (wyszukanePolaczenia.get(i).equals(pierwszeWidoczne))
+                    indexPierwszegoWidocznego = i;
+            }
+            int widocznailosc = 5;
+            if (wyszukanePolaczenia.size() - widocznailosc < indexPierwszegoWidocznego) {
+                indexPierwszegoWidocznego = wyszukanePolaczenia.size() - widocznailosc;
+                if (indexPierwszegoWidocznego < 0)
+                    indexPierwszegoWidocznego = 0;
+            }
+
+            // Pierwszy rząd - Nagłówki
+            ArrayList<String> gridHeaders = new ArrayList<>(List.of(
+                    "Nr połączenia", "Data odjazdu", "Czas", "Przewoźnik", "Akcje"
+            ));
+            for (String gridHeader : gridHeaders) {
+                JLabel headerLabel = new JLabel(gridHeader, SwingConstants.CENTER);
+                headerLabel.setForeground(Color.WHITE);
+                gridPanel.add(headerLabel);
+            }
+
+            // Dodanie lini między komórkami i wypełnienie komórek danymi (w tym przyciskami)
+            for (int i = 0; i < 5 && i < wyszukanePolaczenia.size(); i++) {
+                Polaczenie wyswietlanePolaczenie = wyszukanePolaczenia.get(i + indexPierwszegoWidocznego);
+                for (int j = 0; j < 5; j++) {
+                    JPanel cellPanel = new JPanel();
+                    cellPanel.setBackground(new Color(225, 255, 255));
+                    cellPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+                    // Ustawiamy layout na BoxLayout, aby przyciski były jeden pod drugim
+                    cellPanel.setLayout(new BoxLayout(cellPanel, BoxLayout.Y_AXIS));
+
+                    if (j == 0) {
+                        JLabel oznaczenie = new JLabel(wyswietlanePolaczenie.getOznaczeniePolaczenia());
+                        oznaczenie.setHorizontalAlignment(SwingConstants.CENTER);
+                        oznaczenie.setAlignmentX(Component.CENTER_ALIGNMENT);
+                        cellPanel.add(oznaczenie);
+                    }
+
+                    if (j == 1) {
+                        LocalDateTime odjazd = mainFrame.getWyszukanePostojeS()
+                                .get(wyswietlanePolaczenie.getPolaczenieId())
+                                .getPlanowanyCzasOdjazdu();
+                        JLabel terminOdjazdu = new JLabel(odjazd.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));
+                        terminOdjazdu.setHorizontalAlignment(SwingConstants.CENTER);
+                        terminOdjazdu.setAlignmentX(Component.CENTER_ALIGNMENT);
+                        cellPanel.add(terminOdjazdu);
+                    }
+
+                    if (j == 2) {
+                        Postoj postojS = mainFrame.getWyszukanePostojeS().get(wyswietlanePolaczenie.getPolaczenieId());
+                        Postoj postojE = mainFrame.getWyszukanePostojeE().get(wyswietlanePolaczenie.getPolaczenieId());
+                        long roznicaMinuty = Duration.between(postojS.getPlanowanyCzasOdjazdu(), postojE.getPlanowanyCzasPrzyjazdu()).toMinutes();
+                        String czasStr;
+                        if (roznicaMinuty < 60) {
+                            czasStr = roznicaMinuty + "m";
+                        } else {
+                            long godziny = roznicaMinuty / 60;
+                            long minuty = roznicaMinuty % 60;
+                            czasStr = godziny + "h " + minuty + "m";
+                        }
+                        JLabel terminOdjazdu = new JLabel(czasStr);
+                        terminOdjazdu.setHorizontalAlignment(SwingConstants.CENTER);
+                        terminOdjazdu.setAlignmentX(Component.CENTER_ALIGNMENT);
+                        cellPanel.add(terminOdjazdu);
+                    }
+
+                    if (j == 3) {
+                        JLabel przewoznik = new JLabel(wyswietlanePolaczenie.getPociagKursujacy().getPrzewoznik());
+                        przewoznik.setHorizontalAlignment(SwingConstants.CENTER);
+                        przewoznik.setAlignmentX(Component.CENTER_ALIGNMENT);
+                        cellPanel.add(przewoznik);
+                    }
+
+                    if (j == 4) {
+                        JPanel buttonRow = new JPanel();
+                        buttonRow.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 5));
+                        buttonRow.setOpaque(false);
+
+                        JButton detailsButton = new JButton("Szczegóły");
+                        detailsButton.setFont(detailsButton.getFont().deriveFont(10f));
+                        detailsButton.setMargin(new Insets(2, 4, 2, 4));
+                        buttonRow.add(detailsButton);
+
+                        if (mainFrame.getZalogowanyUser() != null) {
+                            JButton buyTicketButton = new JButton("Bilet");
+                            buyTicketButton.setFont(buyTicketButton.getFont().deriveFont(10f));
+                            detailsButton.setMargin(new Insets(2, 4, 2, 4));
+                            buttonRow.add(buyTicketButton);
+                        }
+
+                        cellPanel.add(buttonRow);
+                    }
+
+                    gridPanel.add(cellPanel);
+                }
+            }
+
+            add(gridPanel);
+
+            add(Box.createRigidArea(new Dimension(0, 15)));
+
+            // Tworzymy panel poziomy z dwoma przyciskami
+            JPanel horizontalPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 100, 0));  // FlowLayout z lewym wyrównaniem
+            horizontalPanel.setBackground(paleCyan);
+            JButton btnEarlier = new JButton("Wyszukaj wcześniejsze połączenia");
+            JButton btnLater = new JButton("Wyszukaj późniejsze połączenia");
+            btnLater.setPreferredSize(
+                    new Dimension(btnEarlier.getPreferredSize().width,
+                            btnLater.getPreferredSize().height)
+            );
+            horizontalPanel.add(btnEarlier);
+            horizontalPanel.add(btnLater);
+            add(horizontalPanel);
+
+        } else {
+
+            JPanel brakPolaczenPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 200, 0));
+            brakPolaczenPanel.setBackground(new Color(83, 145, 234));
+            int polowaWysokosci = (int) (mainFrame.getHeight() * 0.45);
+            brakPolaczenPanel.setPreferredSize(new Dimension(mainFrame.getWidth(), polowaWysokosci));
+            JLabel brakPolaczenLabel = new JLabel("Nie znaleziono połączeń bezpośrednich spełniających podane kryteria.");
+            brakPolaczenLabel.setForeground(Color.WHITE);
+            brakPolaczenLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
+            brakPolaczenLabel.setFont(new Font("Arial", Font.BOLD, 14));
+
+            brakPolaczenPanel.add(brakPolaczenLabel);
+            add(Box.createVerticalStrut(20));
+            add(brakPolaczenPanel);
         }
-
-        add(gridPanel);
-
-        add(Box.createRigidArea(new Dimension(0, 15)));
-
-        // Tworzymy panel poziomy z dwoma przyciskami
-        JPanel horizontalPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 100, 0));  // FlowLayout z lewym wyrównaniem
-        horizontalPanel.setBackground(paleCyan);
-        JButton btnEarlier = new JButton("Wyszukaj wcześniejsze połączenia");
-        JButton btnLater = new JButton("Wyszukaj późniejsze połączenia");
-        btnLater.setPreferredSize(
-                new Dimension(btnEarlier.getPreferredSize().width,
-                btnLater.getPreferredSize().height)
-        );
-        horizontalPanel.add(btnEarlier);
-        horizontalPanel.add(btnLater);
-        add(horizontalPanel);
-
     }
 }
