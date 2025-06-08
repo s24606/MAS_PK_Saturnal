@@ -5,4 +5,9 @@ JOIN Polaczenie pol ON po.polaczenie_id = pol.polaczenie_Id
 JOIN Pociag p ON pol.kursujacy_id = p.pociag_Id
 WHERE p.pociag_Id = 5;
 
+--do sprawdzania wyszukanych polaczen
+--SELECT * FROM polaczenie where oznaczenie_polaczenia='R50Z7634' OR oznaczenie_polaczenia='R86Z0062' OR oznaczenie_polaczenia='R85Z6128' OR oznaczenie_polaczenia='R88Z1193';
+--SELECT * FROM postoj where polaczenie_id=796 OR polaczenie_id=798 OR polaczenie_id=800 OR polaczenie_id=802
+--Select *from stacja where stacja_id=3 or stacja_id=6
+
 

@@ -19,6 +19,7 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
 
     public WyszukiwarkaPolaczenPanel(StacjaRepository stacjaRepo, MainFrame mainFrame) {
         this.mainFrame = mainFrame;
+        mainFrame.setAtrybutyWyszukiwania(null, null,null,null);
         Color paleCyan = new Color(155, 255, 255);
         setBackground(paleCyan);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));

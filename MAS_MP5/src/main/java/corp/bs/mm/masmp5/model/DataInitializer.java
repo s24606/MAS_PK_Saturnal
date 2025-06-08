@@ -198,7 +198,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                     postojRepository.save(post);
                     postoje.add(post);
                     termin = termin.plusMinutes(czasPostoju)
-                            .plusMinutes(rand.nextInt(90) + 60);
+                            .plusMinutes(rand.nextInt(600) + 60);
                 }
                 Collections.reverse(linia);
             }

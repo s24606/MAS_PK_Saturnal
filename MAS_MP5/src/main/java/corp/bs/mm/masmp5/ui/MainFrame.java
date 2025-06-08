@@ -2,6 +2,7 @@ package corp.bs.mm.masmp5.ui;
 
 import corp.bs.mm.masmp5.enums.TypOsoby;
 import corp.bs.mm.masmp5.model.Osoba;
+import corp.bs.mm.masmp5.model.Polaczenie;
 import corp.bs.mm.masmp5.model.Postoj;
 import corp.bs.mm.masmp5.model.Stacja;
 import corp.bs.mm.masmp5.repository.OsobaRepository;
@@ -11,11 +12,11 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.cglib.core.Local;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.*;
 import javax.swing.*;
 import java.awt.*;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +25,7 @@ public class MainFrame extends JFrame {
     @Getter
     private final StacjaRepository stacjaRepo;
     private final OsobaRepository osobaRepo;
+    @Getter
     private final PolaczenieRepository polaczenieRepo;
 
     //atrybuty do wyszukiwania
@@ -31,12 +33,11 @@ public class MainFrame extends JFrame {
     private Stacja stacjaStart;
     @Getter
     private Stacja stacjaEnd;
-    private Postoj postojStart;
-    private Postoj postojEnd;
     @Getter
     private LocalDateTime terminStart;
     @Getter
     private LocalDateTime terminEnd;
+    private ArrayList<Polaczenie> wyszukanePolaczenia;
     private LocalDateTime displayTerminPrev;
     private LocalDateTime displayTerminNext;
 
@@ -61,10 +62,9 @@ public class MainFrame extends JFrame {
 
         stacjaStart=null;
         stacjaEnd=null;
-        postojStart=null;
-        postojEnd=null;
         terminStart=null;
         terminEnd=null;
+        wyszukanePolaczenia=new ArrayList<>();
         displayTerminPrev=null;
         displayTerminNext=null;
 
@@ -82,10 +82,7 @@ public class MainFrame extends JFrame {
         homePanel.setBackground(new Color(255, 255, 155));
         homePanel.add(new JLabel("Witaj na stronie głównej!"));
 
-        JPanel searchPanel = new WyszukiwarkaPolaczenPanel(stacjaRepo, this);
-
         cardsPanel.add(homePanel, "HOME");
-        cardsPanel.add(searchPanel, "SEARCH");
 
         // NAVBAR tworzony dynamicznie
         navBar = new JPanel(new BorderLayout());
@@ -96,8 +93,20 @@ public class MainFrame extends JFrame {
         add(cardsPanel, BorderLayout.CENTER);
 
         JButton btnGoSearch = new JButton("Wyszukiwarka");
-        btnGoSearch.addActionListener(e -> cardLayout.show(cardsPanel, "SEARCH"));
-        homePanel.add(btnGoSearch);
+        btnGoSearch.addActionListener(e -> {
+            for (Component c : cardsPanel.getComponents()) {
+                if ("SEARCH".equals(c.getName())) {
+                    cardsPanel.remove(c);
+                    break;
+                }
+            }
+            JPanel searchPanel = new WyszukiwarkaPolaczenPanel(stacjaRepo, this);
+            searchPanel.setName("SEARCH");
+            cardsPanel.add(searchPanel, "SEARCH");
+            cardLayout.show(cardsPanel, "SEARCH");
+            cardsPanel.revalidate();
+            cardsPanel.repaint();
+        });homePanel.add(btnGoSearch);
 
         cardLayout.show(cardsPanel, "HOME");
 
@@ -218,4 +227,90 @@ public class MainFrame extends JFrame {
         this.terminStart=terminStart;
         this.terminEnd=terminEnd;
     }
+
+    public ArrayList<Polaczenie> findPolaczeniaForStacje() {
+        ArrayList<Polaczenie> polaczeniaS = new ArrayList<>();
+        HashMap<Long, Postoj> mapaAllPostojS = new HashMap<>();
+        for(Postoj postoj: stacjaStart.getPostoje()){
+            polaczeniaS.add(postoj.getPolaczenie());
+            mapaAllPostojS.put(postoj.getPolaczenie().getPolaczenieId(),postoj);
+        }
+        ArrayList<Polaczenie> matchingPolaczenia = new ArrayList<>();
+        HashMap<Long, Postoj> mapaPostojE = new HashMap<>();
+
+        for(Postoj postojEnd: stacjaEnd.getPostoje()) {
+            if (polaczeniaS.contains(postojEnd.getPolaczenie())) {
+                Postoj postojStart = mapaAllPostojS.get(postojEnd.getPolaczenie().getPolaczenieId());
+                if (postojStart.getPlanowanyCzasOdjazdu() != null && postojEnd.getPlanowanyCzasPrzyjazdu() != null)
+                    if (postojStart.getPlanowanyCzasOdjazdu().isBefore(postojEnd.getPlanowanyCzasPrzyjazdu())) {
+                        matchingPolaczenia.add(postojEnd.getPolaczenie());
+                        mapaPostojE.put(postojEnd.getPolaczenie().getPolaczenieId(), postojEnd);
+                    }
+            }
+        }
+
+        HashMap<Long, Postoj> mapaPostojS = new HashMap<>();
+        for(Postoj postojS: stacjaStart.getPostoje())
+            if(matchingPolaczenia.contains(postojS.getPolaczenie()))
+                mapaPostojS.put(postojS.getPolaczenie().getPolaczenieId(),postojS);
+
+
+        ArrayList<Postoj> sortedPostoje;
+        HashMap <Long, Postoj> refMap;
+        if(terminStart!=null){
+            sortedPostoje = sortujPostojePoCzasieOdjazdu(mapaPostojS, terminStart);
+            refMap = mapaPostojS;
+        }else{
+            sortedPostoje = sortujPostojePoCzasiePrzyjazdu(mapaPostojE, terminEnd);
+            refMap = mapaPostojE;
+        }
+
+        ArrayList<Polaczenie> sortedPolaczenia = new ArrayList<>();
+        for(Postoj pos : sortedPostoje){
+            Long polaczenieId = null;
+            for (Map.Entry<Long, Postoj> entry : refMap.entrySet()) {
+                if (entry.getValue().equals(pos)) {
+                    polaczenieId = entry.getKey();
+                }
+            }
+            Polaczenie szukane = null;
+            for(Polaczenie pol : matchingPolaczenia)
+                if(Objects.equals(pol.getPolaczenieId(), polaczenieId))
+                    szukane = pol;
+
+            sortedPolaczenia.add(szukane);
+        }
+
+        return sortedPolaczenia;
+    }
+
+    public static ArrayList<Postoj> sortujPostojePoCzasieOdjazdu(HashMap<Long, Postoj> mapaPostojow, LocalDateTime terminDocelowy) {
+        ArrayList<Postoj> sortedPostoje = new ArrayList<>(mapaPostojow.values());
+        sortedPostoje.sort((postoj1, postoj2) -> {
+            LocalDateTime czasOdjazdu1 = (postoj1.getPlanowanyCzasOdjazdu() != null) ? postoj1.getPlanowanyCzasOdjazdu() : LocalDateTime.MAX;
+            LocalDateTime czasOdjazdu2 = (postoj2.getPlanowanyCzasOdjazdu() != null) ? postoj2.getPlanowanyCzasOdjazdu() : LocalDateTime.MAX;
+            long roznica1 = Math.abs(Duration.between(terminDocelowy, czasOdjazdu1).toMinutes());
+            long roznica2 = Math.abs(Duration.between(terminDocelowy, czasOdjazdu2).toMinutes());
+            return Long.compare(roznica1, roznica2);
+        });
+
+        return sortedPostoje;
+    }
+
+    public static ArrayList<Postoj> sortujPostojePoCzasiePrzyjazdu(HashMap<Long, Postoj> mapaPostojow, LocalDateTime terminDocelowy) {
+        ArrayList<Postoj> sortedPostoje = new ArrayList<>(mapaPostojow.values());
+        sortedPostoje.sort((postoj1, postoj2) -> {
+            LocalDateTime czasPrzyjazdu1 = (postoj1.getPlanowanyCzasPrzyjazdu() != null) ? postoj1.getPlanowanyCzasPrzyjazdu() : LocalDateTime.MAX;
+            LocalDateTime czasPrzyjazdu2 = (postoj2.getPlanowanyCzasPrzyjazdu() != null) ? postoj2.getPlanowanyCzasPrzyjazdu() : LocalDateTime.MAX;
+            long roznica1 = Math.abs(Duration.between(terminDocelowy, czasPrzyjazdu1).toMinutes());
+            long roznica2 = Math.abs(Duration.between(terminDocelowy, czasPrzyjazdu2).toMinutes());
+            return Long.compare(roznica1, roznica2);
+        });
+
+        return sortedPostoje;
+    }
+
+
+
+
 }

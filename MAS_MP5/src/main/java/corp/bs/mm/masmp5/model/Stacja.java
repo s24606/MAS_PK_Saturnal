@@ -30,7 +30,7 @@ public class Stacja {
     private int tory;
 
     @Setter(AccessLevel.NONE)
-    @OneToMany(mappedBy = "stacja", cascade = CascadeType.REMOVE)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "stacja", cascade = CascadeType.REMOVE)
     @OrderBy("planowanyCzasOdjazdu ASC")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
