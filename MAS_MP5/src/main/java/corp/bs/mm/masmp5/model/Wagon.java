@@ -15,6 +15,8 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Table(
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"nrWagonu", "pociag_id"})
@@ -32,7 +34,7 @@ public class Wagon {
     @Min(1)
     private int nrWagonu;
 
-    @OneToMany(mappedBy = "wagon", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(/*fetch = FetchType.EAGER,*/mappedBy = "wagon", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Miejsce> miejsca = new HashSet<>();

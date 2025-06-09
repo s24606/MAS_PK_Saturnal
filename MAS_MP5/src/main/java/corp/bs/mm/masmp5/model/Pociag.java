@@ -40,7 +40,7 @@ public class Pociag {
     private Set<Polaczenie> polaczenia = new HashSet<>();
 
     @Setter(AccessLevel.NONE)
-    @OneToMany(mappedBy = "pociag")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "pociag")
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

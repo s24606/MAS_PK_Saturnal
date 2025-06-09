@@ -1,5 +1,6 @@
 package corp.bs.mm.masmp5.ui;
 
+import corp.bs.mm.masmp5.enums.TypOsoby;
 import corp.bs.mm.masmp5.model.Polaczenie;
 import corp.bs.mm.masmp5.model.Postoj;
 import corp.bs.mm.masmp5.model.Stacja;
@@ -273,12 +274,39 @@ public class WynikiWyszukiwaniaBezposredniegoPanel extends JPanel {
                         detailsButton.setMargin(new Insets(2, 4, 2, 4));
                         buttonRow.add(detailsButton);
 
-                        if (mainFrame.getZalogowanyUser() != null) {
-                            JButton buyTicketButton = new JButton("Bilet");
-                            buyTicketButton.setFont(buyTicketButton.getFont().deriveFont(10f));
-                            detailsButton.setMargin(new Insets(2, 4, 2, 4));
-                            buttonRow.add(buyTicketButton);
-                        }
+                        detailsButton.addActionListener(e -> {
+                            Component[] components = mainFrame.getCardsPanel().getComponents();
+                            for (Component c : components) {
+                                if ("SZCZEGOLY_BILETU".equals(c.getName())) {
+                                    mainFrame.getCardsPanel().remove(c);
+                                    break;
+                                }
+                            }
+                            SzczegolyPolaczeniaPanel szczegolyPolaczeniaPanel  = new SzczegolyPolaczeniaPanel (mainFrame, wyswietlanePolaczenie);
+                            mainFrame.getCardsPanel().add(szczegolyPolaczeniaPanel, "SZCZEGOLY_BILETU");
+                            mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "SZCZEGOLY_BILETU");
+                        });
+
+                        if (mainFrame.getZalogowanyUser() != null)
+                            if (mainFrame.getZalogowanyUser().getRole().contains(TypOsoby.PASAZER)) {
+                                JButton buyTicketButton = new JButton("Bilet");
+                                buyTicketButton.setFont(buyTicketButton.getFont().deriveFont(10f));
+                                detailsButton.setMargin(new Insets(2, 4, 2, 4));
+                                buttonRow.add(buyTicketButton);
+
+                                buyTicketButton.addActionListener(e -> {
+                                    Component[] components = mainFrame.getCardsPanel().getComponents();
+                                    for (Component c : components) {
+                                        if ("ZAKUP_BILETU".equals(c.getName())) {
+                                            mainFrame.getCardsPanel().remove(c);
+                                            break;
+                                        }
+                                    }
+                                    ZakupBiletuBezposredniegoPanel zakupBiletuPanel = new ZakupBiletuBezposredniegoPanel(mainFrame, wyswietlanePolaczenie);
+                                    mainFrame.getCardsPanel().add(zakupBiletuPanel, "ZAKUP_BILETU");
+                                    mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "ZAKUP_BILETU");
+                                });
+                            }
 
                         cellPanel.add(buttonRow);
                     }

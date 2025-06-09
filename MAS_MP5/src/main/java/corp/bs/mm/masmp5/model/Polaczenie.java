@@ -31,7 +31,7 @@ public class Polaczenie {
     @OnDelete(action= OnDeleteAction.CASCADE)
     private Pociag pociagKursujacy;
 
-    @OneToMany(mappedBy = "polaczenie", cascade = CascadeType.REMOVE)
+    @OneToMany(/*fetch = FetchType.EAGER, */mappedBy = "polaczenie", cascade = CascadeType.REMOVE)
     @OrderBy("planowanyCzasOdjazdu ASC")
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     @ToString.Exclude
