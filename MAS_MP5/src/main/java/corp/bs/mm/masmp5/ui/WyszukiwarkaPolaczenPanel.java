@@ -159,7 +159,11 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
         JButton btnPrzesiadkowe = new JButton("Wyszukaj połączenia przesiadkowe");
 
         btnBezposrednie.addActionListener(e -> {
-            if (comboStart.getSelectedIndex() != 0 && comboEnd.getSelectedIndex() != 0) {
+            if (comboStart.getSelectedIndex() == 0 || comboEnd.getSelectedIndex() == 0 || comboStart.getSelectedIndex()==comboEnd.getSelectedIndex())
+            {
+                JOptionPane.showMessageDialog(this, "Wybierz różne stacje początkową i końcową.");
+            }
+            else{
                 Component[] components = mainFrame.getCardsPanel().getComponents();
                 for (Component c : components) {
                     if ("WYNIKI_BEZPOSREDNIE".equals(c.getName())) {

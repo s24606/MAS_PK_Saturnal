@@ -127,44 +127,47 @@ public class WynikiWyszukiwaniaBezposredniegoPanel extends JPanel {
         JButton btnPrzesiadkowe = new JButton("Wyszukaj połączenia przesiadkowe");
 
         btnBezposrednie.addActionListener(e -> {
-            Component[] components = mainFrame.getCardsPanel().getComponents();
-            for (Component c : components) {
-                if ("WYNIKI_BEZPOSREDNIE".equals(c.getName())) {
-                    mainFrame.getCardsPanel().remove(c);
-                    break;
+            if(comboStart.getSelectedIndex()==comboEnd.getSelectedIndex()){
+                JOptionPane.showMessageDialog(this, "Wybierz różne stacje początkową i końcową.");
+            }else {
+                Component[] components = mainFrame.getCardsPanel().getComponents();
+                for (Component c : components) {
+                    if ("WYNIKI_BEZPOSREDNIE".equals(c.getName())) {
+                        mainFrame.getCardsPanel().remove(c);
+                        break;
+                    }
                 }
+
+                int rok = Integer.parseInt((String) yearCombo.getSelectedItem());
+                LocalTime time = ((Date) timeSpinner.getValue()).toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalTime();
+                LocalDateTime terminResult = termin.
+                        withYear(rok).
+                        withMonth(monthCombo.getSelectedIndex() + 1).
+                        withDayOfMonth(dayCombo.getSelectedIndex() + 1).
+                        withHour(time.getHour()).
+                        withMinute(time.getMinute()).
+                        withSecond(0).
+                        withNano(0);
+                mainFrame.setAtrybutyWyszukiwania(
+                        listaStacji.get(comboStart.getSelectedIndex()),
+                        listaStacji.get(comboEnd.getSelectedIndex()),
+                        (rbOdjazdu.isSelected() ? terminResult : null),
+                        (rbPrzyjazdu.isSelected() ? terminResult : null)
+                );
+                // Tworzymy nowy panel z wynikami
+                WynikiWyszukiwaniaBezposredniegoPanel wynikiPanel = new WynikiWyszukiwaniaBezposredniegoPanel(mainFrame);
+                wynikiPanel.setName("WYNIKI_BEZPOSREDNIE");
+                mainFrame.getCardsPanel().add(wynikiPanel, "WYNIKI_BEZPOSREDNIE");
+
+
+                mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "WYNIKI_BEZPOSREDNIE");
+
+                // Odświeżamy layout
+                mainFrame.getCardsPanel().revalidate();
+                mainFrame.getCardsPanel().repaint();
             }
-
-            int rok = Integer.parseInt((String) yearCombo.getSelectedItem());
-            LocalTime time = ((Date) timeSpinner.getValue()).toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalTime();
-            LocalDateTime terminResult = termin.
-                    withYear(rok).
-                    withMonth(monthCombo.getSelectedIndex() + 1).
-                    withDayOfMonth(dayCombo.getSelectedIndex() + 1).
-                    withHour(time.getHour()).
-                    withMinute(time.getMinute()).
-                    withSecond(0).
-                    withNano(0);
-            mainFrame.setAtrybutyWyszukiwania(
-                    listaStacji.get(comboStart.getSelectedIndex()),
-                    listaStacji.get(comboEnd.getSelectedIndex()),
-                    (rbOdjazdu.isSelected() ? terminResult : null),
-                    (rbPrzyjazdu.isSelected() ? terminResult : null)
-            );
-            // Tworzymy nowy panel z wynikami
-            WynikiWyszukiwaniaBezposredniegoPanel wynikiPanel = new WynikiWyszukiwaniaBezposredniegoPanel(mainFrame);
-            wynikiPanel.setName("WYNIKI_BEZPOSREDNIE");
-            mainFrame.getCardsPanel().add(wynikiPanel, "WYNIKI_BEZPOSREDNIE");
-
-
-            mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "WYNIKI_BEZPOSREDNIE");
-
-            // Odświeżamy layout
-            mainFrame.getCardsPanel().revalidate();
-            mainFrame.getCardsPanel().repaint();
-
         });
 
         btnPrzesiadkowe.addActionListener(e -> {
