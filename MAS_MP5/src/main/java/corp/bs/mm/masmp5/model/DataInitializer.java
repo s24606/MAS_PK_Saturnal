@@ -208,24 +208,19 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         ArrayList<Bilet> bilety =new ArrayList<>();
         //generowanie biletow bezposrednich
         ArrayList<BiletBezposredni> biletybezposrednie =new ArrayList<>();
-        double PRZELICZNIK_BB_GODZINOWY = 10.0;
 
         for(int i=0;i<1000;i++) {
             Polaczenie pol = polaczenia.get(rand.nextInt(polaczenia.size()));
             List<Postoj> postojeZPolaczenia = postojRepository.findByPolaczenie(pol);
             int st1 = rand.nextInt(postojeZPolaczenia.size()-1);
             int st2 = st1 + 1 + rand.nextInt(postojeZPolaczenia.size() - st1 - 1);
-            double cenaBB = ((double) Duration.between(
-                    postojeZPolaczenia.get(st1).getPlanowanyCzasOdjazdu(),
-                    postojeZPolaczenia.get(st2).getPlanowanyCzasPrzyjazdu()
-            ).toMinutes()) / 60 * PRZELICZNIK_BB_GODZINOWY;
-            cenaBB = Math.round(cenaBB * 100.0) / 100.0;
+            Osoba pasazer = pasazerowie.get(rand.nextInt(pasazerowie.size()));
             BiletBezposredni bb = BiletBezposredni.builder()
-                    .cena(cenaBB)
+                    .cena(Bilet.obliczCeneBiletu(pasazer, postojeZPolaczenia.get(st1).getStacja(),postojeZPolaczenia.get(st2).getStacja(),postojeZPolaczenia))
                     .stacjaOdjazd(postojeZPolaczenia.get(st1).getStacja())
                     .stacjaPrzyjazd(postojeZPolaczenia.get(st2).getStacja())
                     .polaczenie(pol)
-                    .kupujacy(pasazerowie.get(rand.nextInt(pasazerowie.size())))
+                    .kupujacy(pasazer)
                     .build();
             biletRepository.save(bb);
             bilety.add(bb);
@@ -234,12 +229,15 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         }
 
         //generowanie biletow przesiadkowych
+        Osoba pasazer = pasazerowie.get(rand.nextInt(pasazerowie.size()));
+        LocalDateTime odjazd = LocalDateTime.of(2025, 5, 21, 14, 30);
+        LocalDateTime przyjazd = LocalDateTime.of(2025, 5, 21, 15, 40);
         BiletPrzesiadkowy bp = BiletPrzesiadkowy.builder()
-                .cena(14.45)
-                .czasOdjazdu(LocalDateTime.of(2025, 5, 21, 14, 30))
-                .czasPrzyjazdu(LocalDateTime.of(2025, 5, 21, 15, 40))
+                .cena(Bilet.obliczCeneBiletu(pasazer, odjazd, przyjazd))
+                .czasOdjazdu(odjazd)
+                .czasPrzyjazdu(przyjazd)
                 .marginesBledu(60)
-                .kupujacy(pasazerowie.get(rand.nextInt(pasazerowie.size())))
+                .kupujacy(pasazer)
                 .build();
 
         PrzesiadkowyPolaczenie pp1 = PrzesiadkowyPolaczenie.builder()
@@ -250,14 +248,6 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                 .biletPrzesiadkowy(bp)
                 .polaczenie(polaczenia.get(rand.nextInt(polaczenia.size())))
                 .build();
-
-
-
-
-
-
-
-
 
         biletPrzesiadkowyRepository.saveAll(Arrays.asList(bp));
         przesiadkowyPolaczenieRepository.saveAll(Arrays.asList(pp1));

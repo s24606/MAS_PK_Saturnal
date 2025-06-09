@@ -1,13 +1,8 @@
 package corp.bs.mm.masmp5.ui;
 
 import corp.bs.mm.masmp5.enums.TypOsoby;
-import corp.bs.mm.masmp5.model.Osoba;
-import corp.bs.mm.masmp5.model.Polaczenie;
-import corp.bs.mm.masmp5.model.Postoj;
-import corp.bs.mm.masmp5.model.Stacja;
-import corp.bs.mm.masmp5.repository.OsobaRepository;
-import corp.bs.mm.masmp5.repository.PolaczenieRepository;
-import corp.bs.mm.masmp5.repository.StacjaRepository;
+import corp.bs.mm.masmp5.model.*;
+import corp.bs.mm.masmp5.repository.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,6 +21,10 @@ public class MainFrame extends JFrame {
     private final OsobaRepository osobaRepo;
     @Getter
     private final PolaczenieRepository polaczenieRepo;
+    @Getter
+    private final BiletRepository biletRepository;
+    @Getter
+    private final BiletBezposredniRepository biletBezposredniRepository;
 
     //atrybuty do wyszukiwania
     @Getter
@@ -58,11 +57,15 @@ public class MainFrame extends JFrame {
 
     public MainFrame(StacjaRepository stacjaRepo,
                      OsobaRepository osobaRepo,
-                     PolaczenieRepository polaczenieRepo) {
+                     PolaczenieRepository polaczenieRepo,
+                     BiletRepository biletRepository,
+                     BiletBezposredniRepository biletBezposredniRepository) {
 
         this.stacjaRepo = stacjaRepo;
         this.osobaRepo = osobaRepo;
         this.polaczenieRepo = polaczenieRepo;
+        this.biletRepository = biletRepository;
+        this.biletBezposredniRepository = biletBezposredniRepository;
 
         this.zalogowanyUser = null;
 

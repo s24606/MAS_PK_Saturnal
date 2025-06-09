@@ -25,7 +25,7 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         mainPanel.setBackground(paleCyan);
 
         // Panel formPanel
-        JPanel infoPanel = new JPanel(new GridLayout(6, 2, 5, 5));
+        JPanel infoPanel = new JPanel(new GridLayout(7, 2, 5, 5));
         infoPanel.setBackground(paleCyan);
         infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         infoPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, (int)(getPreferredSize().height * 0.6)));
@@ -78,6 +78,14 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         JLabel doValue = new JLabel(stacjaEnd.getNazwa());
         doValue.setFont(value);
         infoPanel.add(doValue);
+
+        JLabel cenaLabel = new JLabel("Twoja cena:");
+        cenaLabel.setFont(desc);
+        infoPanel.add(cenaLabel);
+        double cena = Bilet.obliczCeneBiletu(mainFrame.getZalogowanyUser(), postojS.getPlanowanyCzasOdjazdu(), postojE.getPlanowanyCzasPrzyjazdu());
+        JLabel cenaValue = new JLabel(cena +" zł");
+        cenaValue.setFont(value);
+        infoPanel.add(cenaValue);
 
         // Panel formPanel
         JPanel formPanel = new JPanel(new BorderLayout());
@@ -140,16 +148,16 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         checkboxPanel.setLayout(new BoxLayout(checkboxPanel, BoxLayout.Y_AXIS));
         checkboxPanel.setBackground(paleCyan);
 
-        JCheckBox bikePlaceCheckBox = new JCheckBox("Miejsce na rower");
-        bikePlaceCheckBox.setBackground(paleCyan);
-        JCheckBox disabilityPlaceCheckBox = new JCheckBox("Miejsce dla inwalidów");
-        disabilityPlaceCheckBox.setBackground(paleCyan);
-        JCheckBox tablePlaceCheckBox = new JCheckBox("Miejsce ze stolikiem");
-        tablePlaceCheckBox.setBackground(paleCyan);
+        JCheckBox miejsceRowCheckBox = new JCheckBox("Miejsce na rower");
+        miejsceRowCheckBox.setBackground(paleCyan);
+        JCheckBox miejsceInwCheckBox = new JCheckBox("Miejsce dla inwalidów");
+        miejsceInwCheckBox.setBackground(paleCyan);
+        JCheckBox miejsceStoCheckBox = new JCheckBox("Miejsce ze stolikiem");
+        miejsceStoCheckBox.setBackground(paleCyan);
 
-        checkboxPanel.add(bikePlaceCheckBox);
-        checkboxPanel.add(disabilityPlaceCheckBox);
-        checkboxPanel.add(tablePlaceCheckBox);
+        checkboxPanel.add(miejsceRowCheckBox);
+        checkboxPanel.add(miejsceInwCheckBox);
+        checkboxPanel.add(miejsceStoCheckBox);
 
         typyPanel.add(checkboxPanel, BorderLayout.CENTER);
 
@@ -180,10 +188,39 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         JCheckBox rezerwowaneMiejsce = new JCheckBox("Czy chcesz zarezerwować konkretne miejsce?");
         rezerwowaneMiejsce.setBackground(paleCyan);
         rezerwowaneMiejsce.setSelected(true);
+        rezerwowaneMiejsce.addActionListener(e -> {
+            miejsceComboBox.setEnabled(rezerwowaneMiejsce.isSelected());
+            wagonComboBox.setEnabled(rezerwowaneMiejsce.isSelected());
+            miejsceInwCheckBox.setEnabled(rezerwowaneMiejsce.isSelected());
+            miejsceRowCheckBox.setEnabled(rezerwowaneMiejsce.isSelected());
+            miejsceStoCheckBox.setEnabled(rezerwowaneMiejsce.isSelected());
+        });
         if(!miejscaWymagajaRezerwacji) {
             confirmPanel.add(rezerwowaneMiejsce);
         }
         JButton confirmButton = new JButton("Potwierdź zakup");
+        confirmButton.addActionListener(e ->{
+           try{
+               if(!rezerwowaneMiejsce.isSelected()) {
+                   BiletBezposredni kupionyBilet = BiletBezposredni.builder()
+                           .cena(cena)
+                           .stacjaOdjazd(stacjaStart)
+                           .stacjaPrzyjazd(stacjaEnd)
+                           .polaczenie(wybranePolaczenie)
+                           .kupujacy(mainFrame.getZalogowanyUser())
+                           .build();
+                   mainFrame.getBiletRepository().save(kupionyBilet);
+                   mainFrame.getBiletBezposredniRepository().save(kupionyBilet);
+
+                   JOptionPane.showMessageDialog(this, "zapisano bilet");
+
+               }
+
+           }catch (Exception exc){
+               JOptionPane.showMessageDialog(this, exc);
+           }
+        });
+
         confirmPanel.add(confirmButton);
 
         JPanel confirmWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
