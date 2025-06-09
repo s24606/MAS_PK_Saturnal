@@ -80,6 +80,10 @@ public abstract class Bilet {
         //stawka - dycha za godzine jazdy
     }
 
+    public void anuluj(){
+        setStatus(StatusBiletu.ANULOWANY);
+    }
+
     public static double obliczCeneBiletu(Osoba pasazer,LocalDateTime czasOdjazdu, LocalDateTime czasPrzyjazdu){
        return Math.round((1-getZnizka(pasazer.getUlga()))*10/60*Duration.between(czasOdjazdu,czasPrzyjazdu).toMinutes()*100.0)/100.0;
     }
@@ -94,6 +98,7 @@ public abstract class Bilet {
             znizka = 0.37;
         return znizka;
     }
+
 }
 
 

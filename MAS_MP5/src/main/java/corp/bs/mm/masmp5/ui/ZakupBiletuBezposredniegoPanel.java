@@ -212,8 +212,8 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
                    mainFrame.getBiletRepository().save(kupionyBilet);
                    mainFrame.getBiletBezposredniRepository().save(kupionyBilet);
 
-                   JOptionPane.showMessageDialog(this, "zapisano bilet");
-
+                   JOptionPane.showMessageDialog(this, "Bilet został kupiony! Możesz go znaleźć w sekcji \"Moje bilety\"");
+                   mainFrame.showHome();
                }
 
            }catch (Exception exc){

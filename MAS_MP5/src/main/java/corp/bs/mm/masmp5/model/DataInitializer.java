@@ -163,7 +163,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         for(Pociag p : pociagi){
             int nrLinii=rand.nextInt(linie.size());
             LocalDateTime termin = LocalDateTime.now().minusDays(7).withHour(0).withMinute(0).withNano(0);
-            LocalDateTime zakresRozkladu = termin.plusDays(30);
+            LocalDateTime zakresRozkladu = termin.plusDays(21);
 
             ArrayList<String> linia = linie.get(nrLinii);
 
@@ -188,12 +188,23 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                     if(miasto.compareTo(linia.get(linia.size()-1))==0){
                         termin2=null;
                     }
+                    LocalDateTime faktycznyPrzyjazd = null;
+                    if(termin1!=null)
+                        if(termin1.isBefore(LocalDateTime.now()))
+                            faktycznyPrzyjazd=termin1;
+                    LocalDateTime faktycznyOdjazd = null;
+                    if(termin2!=null)
+                        if(termin2.isBefore(LocalDateTime.now()))
+                            faktycznyOdjazd=termin2;
+
                     Postoj post = Postoj.builder()
                             .polaczenie(pol)
                             .stacja(st)
                             .nrToru(rand.nextInt(st.getTory()) + 1)
                             .planowanyCzasPrzyjazdu(termin1)
                             .planowanyCzasOdjazdu(termin2)
+                            .faktycznyCzasPrzyjazdu(faktycznyPrzyjazd)
+                            .faktycznyCzasOdjazdu(faktycznyOdjazd)
                             .build();
                     postojRepository.save(post);
                     postoje.add(post);
@@ -227,6 +238,24 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
             biletBezposredniRepository.save(bb);
             biletybezposrednie.add(bb);
         }
+
+        for(int i=80;i>0;i--){
+            BiletBezposredni doAnulowania = biletybezposrednie.get((int)(Math.random()*biletybezposrednie.size()-1));
+            doAnulowania.anuluj();
+            biletBezposredniRepository.save(doAnulowania);
+        }
+
+        //test metody Osoba.przejrzyjBilety() - wymaga FetchType.EAGER w Osoba.bilety
+        /*pasazerowie=new ArrayList<>();
+        for(Osoba o : osobaRepository.findAll()){
+            if(o.getRole().contains(TypOsoby.PASAZER))
+                pasazerowie.add(o);
+        }
+        for(Osoba pasazer: pasazerowie) {
+            String tresc = pasazer.przejrzyjBilety();
+            if(tresc.contains("\n"))
+                logger.info(pasazer.getImie() + ": " + tresc);
+        }*/
 
         //generowanie biletow przesiadkowych
         Osoba pasazer = pasazerowie.get(rand.nextInt(pasazerowie.size()));

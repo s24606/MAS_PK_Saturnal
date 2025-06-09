@@ -117,4 +117,23 @@ public class Osoba {
             this.kodSluzbowy = null;
         }
     }
+
+    public String przejrzyjBilety() throws Exception {
+        StringBuilder result= new StringBuilder();
+        if(role.contains(TypOsoby.PASAZER))
+            for(Bilet b: this.bilety){
+                if(result.isEmpty())
+                    result.append("Bilet z ").append(b.getStacjaOdjazd().getNazwa())
+                            .append(" do ").append(b.getStacjaPrzyjazd().getNazwa())
+                            .append(" (cena: ").append(b.getCena())
+                            .append(") - ").append(b.getStatus());
+                else
+                    result.append("\n").append("Bilet z ").append(b.getStacjaOdjazd().getNazwa())
+                            .append(" do ").append(b.getStacjaPrzyjazd().getNazwa())
+                            .append(" - cena: ").append(b.getCena())
+                            .append(") - ").append(b.getStatus());
+            }
+        else throw new Exception("dane dostepne tylko dla obiektów z rolą PASAZER");
+        return result.toString();
+    }
 }
