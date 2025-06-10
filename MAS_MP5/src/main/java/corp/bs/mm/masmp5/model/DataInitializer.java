@@ -95,6 +95,10 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         ArrayList<Miejsce> allMiejsca = new ArrayList<>();
         ArrayList<Wagon> allWagon = new ArrayList<>();
         for(Pociag poc: pociagi) {
+            //czy dany pociag ma udogodnienie
+            double a = Math.random();
+            double b = Math.random();
+            double c = Math.random();
             int iloscWagonow = (int)(Math.random()*3+2);
             for (int i = 1; i <= iloscWagonow; i++) {
                 Wagon w = Wagon.builder()
@@ -105,10 +109,12 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                 allWagon.add(w);
 
                 int iloscMiejsc = (int)(Math.random()*20+10);
+                //czy wagon ma udogodnienie
+                double a_w = Math.random();
+                double b_w = Math.random();
+                double c_w = Math.random();
+
                 for (int j = 1; j <= iloscMiejsc; j++) {
-                    double a = Math.random();
-                    double b = Math.random();
-                    double c = Math.random();
                     //List<TypMiejsca> typ = new ArrayList<>();
                     //if (a > 0.5) typ.add(TypMiejsca.STOLIK);
                     //if (b > 0.05) typ.add(TypMiejsca.ROWEROWE);
@@ -120,9 +126,9 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                             .wagon(w)
                             .build();
                     miejsceRepository.save(m);
-                    if (a > 0.5) typMiejscaEntityRepository.save(TypMiejscaEntity.builder().typ(TypMiejsca.STOLIK).miejsce(m).build());
-                    if (b > 0.05) typMiejscaEntityRepository.save(TypMiejscaEntity.builder().typ(TypMiejsca.ROWEROWE).miejsce(m).build());
-                    if (c > 0.15) typMiejscaEntityRepository.save(TypMiejscaEntity.builder().typ(TypMiejsca.INWALIDA).miejsce(m).build());
+                    if (a > 0.5 && a_w > 0.5) typMiejscaEntityRepository.save(TypMiejscaEntity.builder().typ(TypMiejsca.STOLIK).miejsce(m).build());
+                    if (b > 0.05 && b_w > 0.5) typMiejscaEntityRepository.save(TypMiejscaEntity.builder().typ(TypMiejsca.ROWEROWE).miejsce(m).build());
+                    if (c > 0.15 && c_w > 0.5) typMiejscaEntityRepository.save(TypMiejscaEntity.builder().typ(TypMiejsca.INWALIDA).miejsce(m).build());
                     allMiejsca.add(m);
                 }
             }
