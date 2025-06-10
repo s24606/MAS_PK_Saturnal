@@ -58,7 +58,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         //generowanie osob
         ArrayList<Osoba> osoby = new ArrayList<>();
         ArrayList<Osoba> pasazerowie = new ArrayList<>();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100; i++) {
             Osoba osoba = generateOsoba();
             osobaRepository.save(osoba);
             osoby.add(osoba);
@@ -95,7 +95,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         ArrayList<Miejsce> allMiejsca = new ArrayList<>();
         ArrayList<Wagon> allWagon = new ArrayList<>();
         for(Pociag poc: pociagi) {
-            int iloscWagonow = (int)(Math.random()*5+5);
+            int iloscWagonow = (int)(Math.random()*3+2);
             for (int i = 1; i <= iloscWagonow; i++) {
                 Wagon w = Wagon.builder()
                         .pociag(poc)
@@ -104,7 +104,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                 w = wagonRepository.save(w);
                 allWagon.add(w);
 
-                int iloscMiejsc = (int)(Math.random()*50+50);
+                int iloscMiejsc = (int)(Math.random()*20+10);
                 for (int j = 1; j <= iloscMiejsc; j++) {
                     double a = Math.random();
                     double b = Math.random();
@@ -162,8 +162,8 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         ArrayList<Postoj> postoje = new ArrayList<>();
         for(Pociag p : pociagi){
             int nrLinii=rand.nextInt(linie.size());
-            LocalDateTime termin = LocalDateTime.now().minusDays(7).withHour(0).withMinute(0).withNano(0);
-            LocalDateTime zakresRozkladu = termin.plusDays(21);
+            LocalDateTime termin = LocalDateTime.now().minusDays(2).withHour(0).withMinute(0).withNano(0);
+            LocalDateTime zakresRozkladu = termin.plusDays(5);
 
             ArrayList<String> linia = linie.get(nrLinii);
 

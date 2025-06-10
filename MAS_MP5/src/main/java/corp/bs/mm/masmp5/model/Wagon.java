@@ -34,7 +34,7 @@ public class Wagon {
     @Min(1)
     private int nrWagonu;
 
-    @OneToMany(/*fetch = FetchType.EAGER,*/mappedBy = "wagon", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "wagon", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Miejsce> miejsca = new HashSet<>();

@@ -1,9 +1,7 @@
 package corp.bs.mm.masmp5.model;
 
 import jakarta.annotation.Nullable;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -16,6 +14,11 @@ import org.hibernate.annotations.OnDeleteAction;
 @AllArgsConstructor
 @Getter
 @Setter
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"nrWagonu", "nrMiejsca", "polaczenie_id"})
+        }
+)
 public class BiletBezposredni extends Bilet{
 
     @Nullable

@@ -11,11 +11,17 @@ import java.util.*;
 public class ZakupBiletuBezposredniegoPanel extends JPanel {
 
     private boolean miejscaWymagajaRezerwacji;
+    private Polaczenie wybranePolaczenie;
+
+    private JComboBox<Integer> miejsceComboBox;
+    private JComboBox<Integer> wagonComboBox;
 
 
     public ZakupBiletuBezposredniegoPanel(MainFrame mainFrame, Polaczenie wybranePolaczenie) {
-        Color paleCyan = new Color(155, 255, 255);
 
+        this.wybranePolaczenie=wybranePolaczenie;
+
+        Color paleCyan = new Color(155, 255, 255);
         setLayout(new BorderLayout());
         setBackground(paleCyan);
         Font desc = new Font("Arial", Font.BOLD, 12);
@@ -124,16 +130,15 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         // dropboxy z numerami
         HashMap<Integer, Wagon> wagony = posortujWagonyPoNumerze(kursujacy);
         ArrayList<Integer> nrWagonow = new ArrayList<>(wagony.keySet());
-        JComboBox<Integer> wagonComboBox = new JComboBox<>(nrWagonow.toArray(new Integer[0]));
+        wagonComboBox = new JComboBox<>(nrWagonow.toArray(new Integer[0]));
         gridPanel.add(wagonComboBox);
 
-        /*wymaga dodania fetchtype.EAGER w relacji wagon-miejsce
-        selectedWagon = wagony.get(wagonComboBox.getSelectedItem());
-        HashMap<Integer, Miejsce> miejsca = posortujMiejscaPoNumerze(selectedWagon);
-        ArrayList<Integer> nrMiejsc = new ArrayList<>(miejsca.keySet());
-        JComboBox<Integer> miejsceComboBox = new JComboBox<>(nrMiejsc.toArray(new Integer[0]));*/
-        JComboBox<String> miejsceComboBox = new JComboBox<>(new String[]{"1A", "1B", "2A", "2B"});
+        miejsceComboBox = new JComboBox<>();
         gridPanel.add(miejsceComboBox);
+        defineMiejsceCombo();
+        wagonComboBox.addActionListener(e -> {
+           defineMiejsceCombo();
+        });
 
         formPanel.add(gridPanel, BorderLayout.CENTER);
 
@@ -214,13 +219,29 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
                                 .build();
                         mainFrame.getBiletRepository().save(kupionyBilet);
                         mainFrame.getBiletBezposredniRepository().save(kupionyBilet);
-
-                        JOptionPane.showMessageDialog(this, "Bilet został kupiony! Możesz go znaleźć w sekcji \"Moje bilety\"");
-                        mainFrame.showHome();
+                    } else {
+                        BiletBezposredni kupionyBilet = BiletBezposredni.builder()
+                                .cena(cena)
+                                .stacjaOdjazd(stacjaStart)
+                                .stacjaPrzyjazd(stacjaEnd)
+                                .nrWagonu((Integer) wagonComboBox.getSelectedItem())
+                                .nrMiejsca((Integer) miejsceComboBox.getSelectedItem())
+                                .polaczenie(wybranePolaczenie)
+                                .kupujacy(mainFrame.getZalogowanyUser())
+                                .build();
+                        mainFrame.getBiletRepository().save(kupionyBilet);
+                        mainFrame.getBiletBezposredniRepository().save(kupionyBilet);
                     }
+                    JOptionPane.showMessageDialog(this, "Bilet został kupiony! Możesz go znaleźć w sekcji \"Moje bilety\"");
+                    mainFrame.showHome();
 
                 } catch (Exception exc) {
-                    JOptionPane.showMessageDialog(this, exc);
+                    String msg=String.valueOf(exc);
+                    if(String.valueOf(exc).contains("Naruszenie ograniczenia Klucza Głównego lub Indeksu Unikalnego: " +
+                            "\"PUBLIC.CONSTRAINT_INDEX_8 ON PUBLIC.BILET_BEZPOSREDNI(" +
+                            "NR_WAGONU NULLS FIRST, NR_MIEJSCA NULLS FIRST, POLACZENIE_ID NULLS FIRST)"))
+                        msg="Wybrane miejsce jest zajęte, spróbuj wybrac inne";
+                    JOptionPane.showMessageDialog(this, msg);
                 }
             }
         });
@@ -252,4 +273,25 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         return mapa;
     }
 
+    private void defineMiejsceCombo(){
+        ArrayList<Integer> miejsca = new ArrayList<>();
+        ArrayList<Wagon> wagony = new ArrayList<>(wybranePolaczenie.getPociagKursujacy().getWagony());
+        Integer selectedWagonNumber = (Integer) wagonComboBox.getSelectedItem();
+        if (selectedWagonNumber == null) {
+            selectedWagonNumber=1;
+        }
+        try {
+            for (int i = 1; i <= (wagony.get(selectedWagonNumber-1).getPojemnosc()); i++)
+                miejsca.add(i);
+        }catch (Exception ex){
+            JOptionPane.showMessageDialog(this, ex);
+        }
+        miejsceComboBox.removeAllItems();
+        for (Integer miejsce : miejsca) {
+            miejsceComboBox.addItem(miejsce);
+        }
+        miejsceComboBox.setSelectedIndex(0);
+        miejsceComboBox.revalidate();
+        miejsceComboBox.repaint();
+    }
 }
