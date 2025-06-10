@@ -295,16 +295,21 @@ public class WynikiWyszukiwaniaBezposredniegoPanel extends JPanel {
                                 buttonRow.add(buyTicketButton);
 
                                 buyTicketButton.addActionListener(e -> {
-                                    Component[] components = mainFrame.getCardsPanel().getComponents();
-                                    for (Component c : components) {
-                                        if ("ZAKUP_BILETU".equals(c.getName())) {
-                                            mainFrame.getCardsPanel().remove(c);
-                                            break;
+                                    Postoj postojS = mainFrame.getWyszukanePostojeS().get(wyswietlanePolaczenie.getPolaczenieId());
+                                    if(postojS.getFaktycznyCzasOdjazdu()!=null)
+                                        JOptionPane.showMessageDialog(this, "Czas rezerwacji miejsc na przejazd z "+ postojS.getStacja().getNazwa()+" w ramach połączenia "+wyswietlanePolaczenie.getOznaczeniePolaczenia()+" minął.");
+                                    else {
+                                        Component[] components = mainFrame.getCardsPanel().getComponents();
+                                        for (Component c : components) {
+                                            if ("ZAKUP_BILETU".equals(c.getName())) {
+                                                mainFrame.getCardsPanel().remove(c);
+                                                break;
+                                            }
                                         }
+                                        ZakupBiletuBezposredniegoPanel zakupBiletuPanel = new ZakupBiletuBezposredniegoPanel(mainFrame, wyswietlanePolaczenie);
+                                        mainFrame.getCardsPanel().add(zakupBiletuPanel, "ZAKUP_BILETU");
+                                        mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "ZAKUP_BILETU");
                                     }
-                                    ZakupBiletuBezposredniegoPanel zakupBiletuPanel = new ZakupBiletuBezposredniegoPanel(mainFrame, wyswietlanePolaczenie);
-                                    mainFrame.getCardsPanel().add(zakupBiletuPanel, "ZAKUP_BILETU");
-                                    mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "ZAKUP_BILETU");
                                 });
                             }
 

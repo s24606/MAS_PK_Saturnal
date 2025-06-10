@@ -102,6 +102,9 @@ public class SzczegolyPolaczeniaPanel extends JPanel {
             if (mainFrame.getZalogowanyUser().getRole().contains(TypOsoby.PASAZER))
                 detailsPanel.add(kupBiletButton);
         kupBiletButton.addActionListener(e -> {
+            if(postojS.getFaktycznyCzasOdjazdu()!=null)
+                JOptionPane.showMessageDialog(this, "Czas rezerwacji miejsc na przejazd z "+ postojS.getStacja().getNazwa()+" w ramach połączenia "+wybranePolaczenie.getOznaczeniePolaczenia()+" minął.");
+            else {
             Component[] components = mainFrame.getCardsPanel().getComponents();
             for (Component c : components) {
                 if ("ZAKUP_BILETU".equals(c.getName())) {
@@ -112,6 +115,7 @@ public class SzczegolyPolaczeniaPanel extends JPanel {
             ZakupBiletuBezposredniegoPanel zakupBiletuPanel = new ZakupBiletuBezposredniegoPanel(mainFrame, wybranePolaczenie);
             mainFrame.getCardsPanel().add(zakupBiletuPanel, "ZAKUP_BILETU");
             mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "ZAKUP_BILETU");
+            }
         });
 
         // Lewa część - lista postojów

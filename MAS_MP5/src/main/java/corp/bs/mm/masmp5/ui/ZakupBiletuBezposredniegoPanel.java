@@ -200,25 +200,29 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         }
         JButton confirmButton = new JButton("Potwierdź zakup");
         confirmButton.addActionListener(e ->{
-           try{
-               if(!rezerwowaneMiejsce.isSelected()) {
-                   BiletBezposredni kupionyBilet = BiletBezposredni.builder()
-                           .cena(cena)
-                           .stacjaOdjazd(stacjaStart)
-                           .stacjaPrzyjazd(stacjaEnd)
-                           .polaczenie(wybranePolaczenie)
-                           .kupujacy(mainFrame.getZalogowanyUser())
-                           .build();
-                   mainFrame.getBiletRepository().save(kupionyBilet);
-                   mainFrame.getBiletBezposredniRepository().save(kupionyBilet);
+            if(postojS.getFaktycznyCzasOdjazdu()!=null)
+                JOptionPane.showMessageDialog(this, "Czas rezerwacji miejsc na przejazd z "+stacjaStart.getNazwa()+" w ramach połączenia "+wybranePolaczenie.getOznaczeniePolaczenia()+" minął.");
+            else {
+                try {
+                    if (!rezerwowaneMiejsce.isSelected()) {
+                        BiletBezposredni kupionyBilet = BiletBezposredni.builder()
+                                .cena(cena)
+                                .stacjaOdjazd(stacjaStart)
+                                .stacjaPrzyjazd(stacjaEnd)
+                                .polaczenie(wybranePolaczenie)
+                                .kupujacy(mainFrame.getZalogowanyUser())
+                                .build();
+                        mainFrame.getBiletRepository().save(kupionyBilet);
+                        mainFrame.getBiletBezposredniRepository().save(kupionyBilet);
 
-                   JOptionPane.showMessageDialog(this, "Bilet został kupiony! Możesz go znaleźć w sekcji \"Moje bilety\"");
-                   mainFrame.showHome();
-               }
+                        JOptionPane.showMessageDialog(this, "Bilet został kupiony! Możesz go znaleźć w sekcji \"Moje bilety\"");
+                        mainFrame.showHome();
+                    }
 
-           }catch (Exception exc){
-               JOptionPane.showMessageDialog(this, exc);
-           }
+                } catch (Exception exc) {
+                    JOptionPane.showMessageDialog(this, exc);
+                }
+            }
         });
 
         confirmPanel.add(confirmButton);

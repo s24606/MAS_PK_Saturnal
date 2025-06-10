@@ -58,9 +58,7 @@ public class LoginPanel extends JPanel {
         loginButton.addActionListener(e -> {
             if (selectedOsoba != null) {
                 mainFrame.setZalogowanyUser(selectedOsoba);
-                JOptionPane.showMessageDialog(this, "Zalogowano jako: " + selectedOsoba.getImie());
-
-                mainFrame.showHome(); // wraca do strony głównej i odświeża navBar
+                mainFrame.showHome();
             } else {
                 JOptionPane.showMessageDialog(this, "Wybierz użytkownika przed logowaniem.");
             }
