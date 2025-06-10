@@ -212,111 +212,129 @@ public class WynikiWyszukiwaniaBezposredniegoPanel extends JPanel {
             }
 
             // Dodanie lini między komórkami i wypełnienie komórek danymi (w tym przyciskami)
-            for (int i = 0; i < 5 && i < wyszukanePolaczenia.size(); i++) {
-                Polaczenie wyswietlanePolaczenie = wyszukanePolaczenia.get(i + indexPierwszegoWidocznego);
-                for (int j = 0; j < 5; j++) {
-                    JPanel cellPanel = new JPanel();
-                    cellPanel.setBackground(new Color(225, 255, 255));
-                    cellPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            for (int i = 0; i < 5; i++) {
+                if (i < wyszukanePolaczenia.size()) {
+                    Polaczenie wyswietlanePolaczenie = wyszukanePolaczenia.get(i + indexPierwszegoWidocznego);
+                    for (int j = 0; j < 5; j++) {
+                        JPanel cellPanel = new JPanel();
+                        cellPanel.setBackground(new Color(225, 255, 255));
+                        cellPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
-                    // Ustawiamy layout na BoxLayout, aby przyciski były jeden pod drugim
-                    cellPanel.setLayout(new BoxLayout(cellPanel, BoxLayout.Y_AXIS));
+                        // Ustawiamy layout na BoxLayout, aby przyciski były jeden pod drugim
+                        cellPanel.setLayout(new BoxLayout(cellPanel, BoxLayout.Y_AXIS));
 
-                    if (j == 0) {
-                        JLabel oznaczenie = new JLabel(wyswietlanePolaczenie.getOznaczeniePolaczenia());
-                        oznaczenie.setHorizontalAlignment(SwingConstants.CENTER);
-                        oznaczenie.setAlignmentX(Component.CENTER_ALIGNMENT);
-                        cellPanel.add(oznaczenie);
-                    }
-
-                    if (j == 1) {
-                        LocalDateTime odjazd = mainFrame.getWyszukanePostojeS()
-                                .get(wyswietlanePolaczenie.getPolaczenieId())
-                                .getPlanowanyCzasOdjazdu();
-                        JLabel terminOdjazdu = new JLabel(odjazd.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));
-                        terminOdjazdu.setHorizontalAlignment(SwingConstants.CENTER);
-                        terminOdjazdu.setAlignmentX(Component.CENTER_ALIGNMENT);
-                        cellPanel.add(terminOdjazdu);
-                    }
-
-                    if (j == 2) {
-                        Postoj postojS = mainFrame.getWyszukanePostojeS().get(wyswietlanePolaczenie.getPolaczenieId());
-                        Postoj postojE = mainFrame.getWyszukanePostojeE().get(wyswietlanePolaczenie.getPolaczenieId());
-                        long roznicaMinuty = Duration.between(postojS.getPlanowanyCzasOdjazdu(), postojE.getPlanowanyCzasPrzyjazdu()).toMinutes();
-                        String czasStr;
-                        if (roznicaMinuty < 60) {
-                            czasStr = roznicaMinuty + "m";
-                        } else {
-                            long godziny = roznicaMinuty / 60;
-                            long minuty = roznicaMinuty % 60;
-                            czasStr = godziny + "h " + minuty + "m";
+                        if (j == 0) {
+                            JLabel oznaczenie = new JLabel(wyswietlanePolaczenie.getOznaczeniePolaczenia());
+                            oznaczenie.setHorizontalAlignment(SwingConstants.CENTER);
+                            oznaczenie.setAlignmentX(Component.CENTER_ALIGNMENT);
+                            cellPanel.add(oznaczenie);
                         }
-                        JLabel terminOdjazdu = new JLabel(czasStr);
-                        terminOdjazdu.setHorizontalAlignment(SwingConstants.CENTER);
-                        terminOdjazdu.setAlignmentX(Component.CENTER_ALIGNMENT);
-                        cellPanel.add(terminOdjazdu);
-                    }
 
-                    if (j == 3) {
-                        JLabel przewoznik = new JLabel(wyswietlanePolaczenie.getPociagKursujacy().getPrzewoznik());
-                        przewoznik.setHorizontalAlignment(SwingConstants.CENTER);
-                        przewoznik.setAlignmentX(Component.CENTER_ALIGNMENT);
-                        cellPanel.add(przewoznik);
-                    }
+                        if (j == 1) {
+                            LocalDateTime odjazd = mainFrame.getWyszukanePostojeS()
+                                    .get(wyswietlanePolaczenie.getPolaczenieId())
+                                    .getPlanowanyCzasOdjazdu();
+                            JLabel terminOdjazdu = new JLabel(odjazd.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));
+                            terminOdjazdu.setHorizontalAlignment(SwingConstants.CENTER);
+                            terminOdjazdu.setAlignmentX(Component.CENTER_ALIGNMENT);
+                            cellPanel.add(terminOdjazdu);
+                        }
 
-                    if (j == 4) {
-                        JPanel buttonRow = new JPanel();
-                        buttonRow.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 5));
-                        buttonRow.setOpaque(false);
-
-                        JButton detailsButton = new JButton("Szczegóły");
-                        detailsButton.setFont(detailsButton.getFont().deriveFont(10f));
-                        detailsButton.setMargin(new Insets(2, 4, 2, 4));
-                        buttonRow.add(detailsButton);
-
-                        detailsButton.addActionListener(e -> {
-                            Component[] components = mainFrame.getCardsPanel().getComponents();
-                            for (Component c : components) {
-                                if ("SZCZEGOLY_BILETU".equals(c.getName())) {
-                                    mainFrame.getCardsPanel().remove(c);
-                                    break;
-                                }
+                        if (j == 2) {
+                            Postoj postojS = mainFrame.getWyszukanePostojeS().get(wyswietlanePolaczenie.getPolaczenieId());
+                            Postoj postojE = mainFrame.getWyszukanePostojeE().get(wyswietlanePolaczenie.getPolaczenieId());
+                            long roznicaMinuty = Duration.between(postojS.getPlanowanyCzasOdjazdu(), postojE.getPlanowanyCzasPrzyjazdu()).toMinutes();
+                            String czasStr;
+                            if (roznicaMinuty < 60) {
+                                czasStr = roznicaMinuty + "m";
+                            } else {
+                                long godziny = roznicaMinuty / 60;
+                                long minuty = roznicaMinuty % 60;
+                                czasStr = godziny + "h " + minuty + "m";
                             }
-                            SzczegolyPolaczeniaPanel szczegolyPolaczeniaPanel  = new SzczegolyPolaczeniaPanel (mainFrame, wyswietlanePolaczenie);
-                            mainFrame.getCardsPanel().add(szczegolyPolaczeniaPanel, "SZCZEGOLY_BILETU");
-                            mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "SZCZEGOLY_BILETU");
-                        });
+                            JLabel terminOdjazdu = new JLabel(czasStr);
+                            terminOdjazdu.setHorizontalAlignment(SwingConstants.CENTER);
+                            terminOdjazdu.setAlignmentX(Component.CENTER_ALIGNMENT);
+                            cellPanel.add(terminOdjazdu);
+                        }
 
-                        if (mainFrame.getZalogowanyUser() != null)
-                            if (mainFrame.getZalogowanyUser().getRole().contains(TypOsoby.PASAZER)) {
-                                JButton buyTicketButton = new JButton("Bilet");
-                                buyTicketButton.setFont(buyTicketButton.getFont().deriveFont(10f));
-                                detailsButton.setMargin(new Insets(2, 4, 2, 4));
-                                buttonRow.add(buyTicketButton);
+                        if (j == 3) {
+                            JLabel przewoznik = new JLabel(wyswietlanePolaczenie.getPociagKursujacy().getPrzewoznik());
+                            przewoznik.setHorizontalAlignment(SwingConstants.CENTER);
+                            przewoznik.setAlignmentX(Component.CENTER_ALIGNMENT);
+                            cellPanel.add(przewoznik);
+                        }
 
-                                buyTicketButton.addActionListener(e -> {
-                                    Postoj postojS = mainFrame.getWyszukanePostojeS().get(wyswietlanePolaczenie.getPolaczenieId());
-                                    if(postojS.getFaktycznyCzasOdjazdu()!=null)
-                                        JOptionPane.showMessageDialog(this, "Czas rezerwacji miejsc na przejazd z "+ postojS.getStacja().getNazwa()+" w ramach połączenia "+wyswietlanePolaczenie.getOznaczeniePolaczenia()+" minął.");
-                                    else {
-                                        Component[] components = mainFrame.getCardsPanel().getComponents();
-                                        for (Component c : components) {
-                                            if ("ZAKUP_BILETU".equals(c.getName())) {
-                                                mainFrame.getCardsPanel().remove(c);
-                                                break;
-                                            }
-                                        }
-                                        ZakupBiletuBezposredniegoPanel zakupBiletuPanel = new ZakupBiletuBezposredniegoPanel(mainFrame, wyswietlanePolaczenie);
-                                        mainFrame.getCardsPanel().add(zakupBiletuPanel, "ZAKUP_BILETU");
-                                        mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "ZAKUP_BILETU");
+                        if (j == 4) {
+                            JPanel buttonRow = new JPanel();
+                            buttonRow.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 5));
+                            buttonRow.setOpaque(false);
+
+                            JButton detailsButton = new JButton("Szczegóły");
+                            detailsButton.setFont(detailsButton.getFont().deriveFont(10f));
+                            detailsButton.setMargin(new Insets(2, 4, 2, 4));
+                            buttonRow.add(detailsButton);
+
+                            detailsButton.addActionListener(e -> {
+                                Component[] components = mainFrame.getCardsPanel().getComponents();
+                                for (Component c : components) {
+                                    if ("SZCZEGOLY_BILETU".equals(c.getName())) {
+                                        mainFrame.getCardsPanel().remove(c);
+                                        break;
                                     }
-                                });
-                            }
+                                }
+                                SzczegolyPolaczeniaPanel szczegolyPolaczeniaPanel = new SzczegolyPolaczeniaPanel(mainFrame, wyswietlanePolaczenie);
+                                mainFrame.getCardsPanel().add(szczegolyPolaczeniaPanel, "SZCZEGOLY_BILETU");
+                                mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "SZCZEGOLY_BILETU");
+                            });
 
-                        cellPanel.add(buttonRow);
+                            if (mainFrame.getZalogowanyUser() != null)
+                                if (mainFrame.getZalogowanyUser().getRole().contains(TypOsoby.PASAZER)) {
+                                    JButton buyTicketButton = new JButton("Bilet");
+                                    buyTicketButton.setFont(buyTicketButton.getFont().deriveFont(10f));
+                                    detailsButton.setMargin(new Insets(2, 4, 2, 4));
+                                    buttonRow.add(buyTicketButton);
+
+                                    buyTicketButton.addActionListener(e -> {
+                                        Postoj postojS = mainFrame.getWyszukanePostojeS().get(wyswietlanePolaczenie.getPolaczenieId());
+                                        if (postojS.getFaktycznyCzasOdjazdu() != null)
+                                            JOptionPane.showMessageDialog(this, "Czas rezerwacji miejsc na przejazd z " + postojS.getStacja().getNazwa() + " w ramach połączenia " + wyswietlanePolaczenie.getOznaczeniePolaczenia() + " minął.");
+                                        else {
+                                            Component[] components = mainFrame.getCardsPanel().getComponents();
+                                            for (Component c : components) {
+                                                if ("ZAKUP_BILETU".equals(c.getName())) {
+                                                    mainFrame.getCardsPanel().remove(c);
+                                                    break;
+                                                }
+                                            }
+                                            ZakupBiletuBezposredniegoPanel zakupBiletuPanel = new ZakupBiletuBezposredniegoPanel(mainFrame, wyswietlanePolaczenie);
+                                            mainFrame.getCardsPanel().add(zakupBiletuPanel, "ZAKUP_BILETU");
+                                            mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "ZAKUP_BILETU");
+                                        }
+                                    });
+                                }
+
+                            cellPanel.add(buttonRow);
+                        }
+
+                        gridPanel.add(cellPanel);
                     }
+                }
+                else{
+                    for (int j = 0; j < 5; j++) {
+                        JPanel cellPanel = new JPanel();
+                        cellPanel.setBackground(new Color(225, 255, 255));
+                        cellPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+                        cellPanel.setLayout(new BoxLayout(cellPanel, BoxLayout.Y_AXIS));
 
-                    gridPanel.add(cellPanel);
+                        JLabel filler = new JLabel("___");
+                        filler.setForeground(new Color(150, 150, 150));
+                        filler.setHorizontalAlignment(SwingConstants.CENTER);
+                        filler.setAlignmentX(Component.CENTER_ALIGNMENT);
+                        cellPanel.add(filler);
+
+                        gridPanel.add(cellPanel);
+                    }
                 }
             }
 
