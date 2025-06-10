@@ -103,12 +103,19 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         miejscaWymagajaRezerwacji = kursujacy.isObowiazekRezerwacjiMiejsc();
 
         // Przycisk wstecz
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        buttonPanel.setBackground(paleCyan);
         JButton backToWyniki = new JButton("Wróć do wyszukiwania");
-        backToWyniki.setAlignmentX(Component.CENTER_ALIGNMENT);
-        formPanel.add(backToWyniki, BorderLayout.NORTH);
+        backToWyniki.setPreferredSize(new Dimension(backToWyniki.getPreferredSize().width, backToWyniki.getPreferredSize().height));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, backToWyniki.getPreferredSize().height, 0));
+        buttonPanel.add(backToWyniki);
+
+        formPanel.add(buttonPanel, BorderLayout.NORTH);
         backToWyniki.addActionListener(e -> {
             mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "WYNIKI_BEZPOSREDNIE");
         });
+
+
 
         // Grid 2x2 dla wagonu i miejsca
         JPanel gridPanel = new JPanel(new GridLayout(2, 2, 5, 5));

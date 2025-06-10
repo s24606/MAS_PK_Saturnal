@@ -28,16 +28,25 @@ public class SzczegolyPolaczeniaPanel extends JPanel {
         detailsPanel.setBackground(paleCyan);
 
         // Panel infoPanel - na górze detailsPanel
-        JPanel infoPanel = new JPanel(new GridLayout(4, 2, 5, 5));
+        JPanel infoPanel = new JPanel(new GridLayout(5, 2, 5, 5));
         infoPanel.setBackground(paleCyan);
         infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        // Nazwa przewoznika
         JLabel przewoznikLabel = new JLabel("Przewoźnik:");
         przewoznikLabel.setFont(new Font("Arial", Font.BOLD, 12));
         infoPanel.add(przewoznikLabel);
         JLabel przewoznikValue = new JLabel(wybranePolaczenie.getPociagKursujacy().getPrzewoznik());
         przewoznikValue.setFont(new Font("Arial", Font.PLAIN, 12));
         infoPanel.add(przewoznikValue);
+
+        // Nazwa pociagu
+        JLabel pociagLabel = new JLabel("Pociag:");
+        pociagLabel.setFont(new Font("Arial", Font.BOLD, 12));
+        infoPanel.add(pociagLabel);
+        JLabel pociagValue = new JLabel(wybranePolaczenie.getPociagKursujacy().getNazwa());
+        pociagValue.setFont(new Font("Arial", Font.PLAIN, 12));
+        infoPanel.add(pociagValue);
 
         // Czas przejazdu
         Postoj postojS = mainFrame.getWyszukanePostojeS().get(wybranePolaczenie.getPolaczenieId());
@@ -123,9 +132,16 @@ public class SzczegolyPolaczeniaPanel extends JPanel {
         leftPanel.setBackground(paleCyan);
 
         // Przycisk wstecz
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        buttonPanel.setBackground(paleCyan);
         JButton backToWyniki = new JButton("Wróć do wyszukiwania");
-        backToWyniki.setAlignmentX(Component.CENTER_ALIGNMENT);
-        leftPanel.add(backToWyniki, BorderLayout.NORTH);
+        backToWyniki.setPreferredSize(new Dimension(backToWyniki.getPreferredSize().width, backToWyniki.getPreferredSize().height));
+        buttonPanel.add(backToWyniki);
+
+        // Dodanie odstępu równego wysokości przycisku
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, backToWyniki.getPreferredSize().height, 0));
+
+        leftPanel.add(buttonPanel, BorderLayout.NORTH);
         backToWyniki.addActionListener(e -> {
             mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "WYNIKI_BEZPOSREDNIE");
         });
