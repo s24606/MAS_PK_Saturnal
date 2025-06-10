@@ -1,6 +1,7 @@
 package corp.bs.mm.masmp5.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
@@ -31,17 +32,42 @@ public class Polaczenie {
     @OnDelete(action= OnDeleteAction.CASCADE)
     private Pociag pociagKursujacy;
 
-    @OneToMany(/*fetch = FetchType.EAGER, */mappedBy = "polaczenie", cascade = CascadeType.REMOVE)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "polaczenie", cascade = CascadeType.REMOVE)
     @OrderBy("planowanyCzasOdjazdu ASC")
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Postoj> postoje = new ArrayList<>();
 
-    @OneToMany(mappedBy = "polaczenie", cascade = CascadeType.REMOVE)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private Set<PrzesiadkowyPolaczenie> przesiadkowyPolaczenia = new HashSet<>();
+    @AssertTrue(message = "Do polaczenia moze byc przypisany jeden postoj bez planowanego czasu odjazdu")
+    private boolean isJedenPostojKoncowy() {
+        if (postoje==null) {
+            return true;
+        }else{
+            int counter=0;
+            for(Postoj p:postoje)
+            {
+                if(p.getPlanowanyCzasOdjazdu()==null)
+                    counter++;
+            }
+            return counter<=1;
+        }
+    }
+
+    @AssertTrue(message = "Do polaczenia moze byc przypisany jeden postoj bez planowanego czasu przyjazdu")
+    private boolean isJedenPostojStartowy() {
+        if (postoje==null) {
+            return true;
+        }else{
+            int counter=0;
+            for(Postoj p:postoje)
+            {
+                if(p.getPlanowanyCzasPrzyjazdu()==null)
+                    counter++;
+            }
+            return counter<=1;
+        }
+    }
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "polaczenie", cascade = CascadeType.REMOVE)
     @ToString.Exclude

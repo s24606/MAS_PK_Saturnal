@@ -2,7 +2,6 @@ package corp.bs.mm.masmp5.model;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.OnDelete;
@@ -28,7 +27,7 @@ public class BiletBezposredni extends Bilet{
     private Integer nrWagonu;
 
     @Setter(AccessLevel.NONE)
-    @ManyToOne
+    @ManyToOne(optional=false)
     @JoinColumn(name = "polaczenie_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Polaczenie polaczenie;

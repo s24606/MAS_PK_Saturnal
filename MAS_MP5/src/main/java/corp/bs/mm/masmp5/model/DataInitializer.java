@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Component
@@ -35,8 +36,6 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
     private final WagonRepository wagonRepository;
     private final MiejsceRepository miejsceRepository;
     private final TypMiejscaEntityRepository typMiejscaEntityRepository;
-
-    private final PrzesiadkowyPolaczenieRepository przesiadkowyPolaczenieRepository;
 
     private final OsobaRepository osobaRepository;
 
@@ -263,11 +262,6 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
             }
         }
 
-        for(int i=80;i>0;i--){
-            BiletBezposredni doAnulowania = biletybezposrednie.get((int)(Math.random()*biletybezposrednie.size()-1));
-            doAnulowania.anuluj();
-            biletBezposredniRepository.save(doAnulowania);
-        }
 
         //test metody Osoba.przejrzyjBilety() - wymaga FetchType.EAGER w Osoba.bilety
         /*pasazerowie=new ArrayList<>();
@@ -282,28 +276,45 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         }*/
 
         //generowanie biletow przesiadkowych
-        Osoba pasazer = pasazerowie.get(rand.nextInt(pasazerowie.size()));
-        LocalDateTime odjazd = LocalDateTime.of(2025, 5, 21, 14, 30);
-        LocalDateTime przyjazd = LocalDateTime.of(2025, 5, 21, 15, 40);
-        BiletPrzesiadkowy bp = BiletPrzesiadkowy.builder()
-                .cena(Bilet.obliczCeneBiletu(pasazer, odjazd, przyjazd))
-                .czasOdjazdu(odjazd)
-                .czasPrzyjazdu(przyjazd)
-                .marginesBledu(60)
-                .kupujacy(pasazer)
-                .build();
+        for (int i = 0; i < 50; i++) {
+            Osoba pasazer = pasazerowie.get(rand.nextInt(pasazerowie.size()));
 
-        PrzesiadkowyPolaczenie pp1 = PrzesiadkowyPolaczenie.builder()
-                .biletPrzesiadkowy(bp)
-                .polaczenie(polaczenia.get(rand.nextInt(polaczenia.size())))
-                .build();
-        PrzesiadkowyPolaczenie pp2 = PrzesiadkowyPolaczenie.builder()
-                .biletPrzesiadkowy(bp)
-                .polaczenie(polaczenia.get(rand.nextInt(polaczenia.size())))
-                .build();
+            LocalDateTime teraz = LocalDateTime.now().withSecond(0).withNano(0);
+            LocalDateTime odjazd = teraz.plusDays(rand.nextInt(14) - 7).plusHours(rand.nextInt(24) - 12).plusMinutes(rand.nextInt(60) - 30);
+            LocalDateTime przyjazd = odjazd.plusHours(rand.nextInt(12) + 1).plusMinutes(rand.nextInt(59));
+            long roznicaGodzin = ChronoUnit.HOURS.between(odjazd, przyjazd);
+            int marginesBledu = 0;
+            if (roznicaGodzin < 1) {
+                marginesBledu =  30;
+            } else if (roznicaGodzin < 4) {
+                marginesBledu =  60;
+            } else {
+                marginesBledu =  120;
+            }
+            int index= rand.nextInt(stacje.size()-1);
+            Stacja stacjaS = stacje.get(index);
+            Stacja stacjaE = stacje.get(index+1);
+            BiletPrzesiadkowy bp = BiletPrzesiadkowy.builder()
+                    .cena(Bilet.obliczCeneBiletu(pasazer, odjazd, przyjazd))
+                    .czasOdjazdu(odjazd)
+                    .czasPrzyjazdu(przyjazd)
+                    .marginesBledu(marginesBledu)
+                    .stacjaOdjazd(stacjaS)
+                    .stacjaPrzyjazd(stacjaE)
+                    .kupujacy(pasazer)
+                    .build();
+            biletPrzesiadkowyRepository.save(bp);
+            biletRepository.save(bp);
+            bilety.add(bp);
+        }
 
-        biletPrzesiadkowyRepository.saveAll(Arrays.asList(bp));
-        przesiadkowyPolaczenieRepository.saveAll(Arrays.asList(pp1));
+        for(int i=80;i>0;i--){
+            Bilet doAnulowania = bilety.get(rand.nextInt(bilety.size()));
+            doAnulowania.anuluj();
+            biletRepository.save(doAnulowania);
+        }
+
+
 
         //wagonRepository.delete(allWagon.get(0));
 

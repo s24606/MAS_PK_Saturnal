@@ -37,11 +37,13 @@ public abstract class Bilet {
     @Builder.Default
     private StatusBiletu status = StatusBiletu.ZAREZERWOWANY;;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "stacjaOdjazd_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Stacja stacjaOdjazd;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "stacjaPrzyjazd_id")
     @OnDelete(action = OnDeleteAction.CASCADE)

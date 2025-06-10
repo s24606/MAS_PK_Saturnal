@@ -7,6 +7,8 @@ import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.validator.constraints.UniqueElements;
 
 import java.util.ArrayList;
@@ -49,9 +51,10 @@ public class Osoba {
     private String telefon;
 
     @Setter(AccessLevel.NONE)
-    @OneToMany(mappedBy = "kupujacy", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "kupujacy", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Bilet> bilety = new HashSet<>();
 
     @Setter(AccessLevel.NONE)
