@@ -225,6 +225,13 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
 
         JButton confirmButton = new JButton("Potwierdź zakup");
         confirmButton.addActionListener(e ->{
+            Component[] components = mainFrame.getCardsPanel().getComponents();
+            for (Component c : components) {
+                if ("POTWIERDZENIE_ZAKUPU_BILETU".equals(c.getName())) {
+                    mainFrame.getCardsPanel().remove(c);
+                    break;
+                }
+            }
             if(postojS.getFaktycznyCzasOdjazdu()!=null)
                 JOptionPane.showMessageDialog(this, "Czas rezerwacji miejsc na przejazd z "+stacjaStart.getNazwa()+" w ramach połączenia "+wybranePolaczenie.getOznaczeniePolaczenia()+" minął.");
             else {
@@ -250,8 +257,9 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
                                     .build();
                             mainFrame.getBiletRepository().save(kupionyBilet);
                             mainFrame.getBiletBezposredniRepository().save(kupionyBilet);
-                            JOptionPane.showMessageDialog(this, "Bilet został kupiony! Możesz go znaleźć w sekcji \"Moje bilety\"");
-                            mainFrame.showHome();
+                            PotwierdzenieZakupuBiletuPanel potwierdzenieZakupuBiletuPanel = new PotwierdzenieZakupuBiletuPanel(mainFrame, kupionyBilet);
+                            mainFrame.getCardsPanel().add(potwierdzenieZakupuBiletuPanel, "POTWIERDZENIE_ZAKUPU_BILETU");
+                            mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "POTWIERDZENIE_ZAKUPU_BILETU");
                         }
                     } else {
                         if (Objects.equals(miejsceComboBox.getSelectedItem(), "")) {
@@ -268,8 +276,11 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
                                     .build();
                             mainFrame.getBiletRepository().save(kupionyBilet);
                             mainFrame.getBiletBezposredniRepository().save(kupionyBilet);
-                            JOptionPane.showMessageDialog(this, "Bilet został kupiony! Możesz go znaleźć w sekcji \"Moje bilety\"");
-                            mainFrame.showHome();
+
+
+                            PotwierdzenieZakupuBiletuPanel potwierdzenieZakupuBiletuPanel = new PotwierdzenieZakupuBiletuPanel(mainFrame, kupionyBilet);
+                            mainFrame.getCardsPanel().add(potwierdzenieZakupuBiletuPanel, "POTWIERDZENIE_ZAKUPU_BILETU");
+                            mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "POTWIERDZENIE_ZAKUPU_BILETU");
                         }
                     }
 
