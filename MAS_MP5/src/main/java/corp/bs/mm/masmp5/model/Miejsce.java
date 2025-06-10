@@ -33,7 +33,7 @@ public class Miejsce {
     @Min(1)
     private int nrMiejsca;
 
-    @OneToMany(mappedBy = "miejsce", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(/*fetch = FetchType.EAGER, */mappedBy = "miejsce", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<TypMiejscaEntity> typMiejsca = new HashSet<>();

@@ -13,7 +13,7 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
     private boolean miejscaWymagajaRezerwacji;
     private Polaczenie wybranePolaczenie;
 
-    private JComboBox<Integer> miejsceComboBox;
+    private JComboBox<String> miejsceComboBox;
     private JComboBox<Integer> wagonComboBox;
 
 
@@ -115,8 +115,6 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
             mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "WYNIKI_BEZPOSREDNIE");
         });
 
-
-
         // Grid 2x2 dla wagonu i miejsca
         JPanel gridPanel = new JPanel(new GridLayout(2, 2, 5, 5));
         gridPanel.setBackground(paleCyan);
@@ -144,12 +142,22 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         gridPanel.add(miejsceComboBox);
         defineMiejsceCombo();
         wagonComboBox.addActionListener(e -> {
-           defineMiejsceCombo();
+            defineMiejsceCombo();
         });
 
         formPanel.add(gridPanel, BorderLayout.CENTER);
 
-        // Panel z checkboxami (pod gridem)
+        // Panel z checkboxem rezerwacji miejsca (pod gridem)
+        JPanel rezerwacjaPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        rezerwacjaPanel.setBackground(paleCyan);
+        JCheckBox rezerwowaneMiejsce = new JCheckBox("Czy chcesz zarezerwować konkretne miejsce?");
+        rezerwowaneMiejsce.setBackground(paleCyan);
+        rezerwowaneMiejsce.setSelected(true);
+        if(!miejscaWymagajaRezerwacji) {
+            rezerwacjaPanel.add(rezerwowaneMiejsce);
+        }
+
+        // Panel z checkboxami (pod checkboxem rezerwacji)
         JPanel typyPanel = new JPanel(new BorderLayout());
         typyPanel.setBackground(paleCyan);
 
@@ -171,9 +179,26 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         checkboxPanel.add(miejsceInwCheckBox);
         checkboxPanel.add(miejsceStoCheckBox);
 
+        typyPanel.setVisible(false);
+
         typyPanel.add(checkboxPanel, BorderLayout.CENTER);
 
-        formPanel.add(typyPanel, BorderLayout.SOUTH);
+        // ActionListener umieszczony nizej, zeby
+        rezerwowaneMiejsce.addActionListener(e -> {
+            miejsceComboBox.setEnabled(rezerwowaneMiejsce.isSelected());
+            wagonComboBox.setEnabled(rezerwowaneMiejsce.isSelected());
+            miejsceInwCheckBox.setEnabled(rezerwowaneMiejsce.isSelected());
+            miejsceRowCheckBox.setEnabled(rezerwowaneMiejsce.isSelected());
+            miejsceStoCheckBox.setEnabled(rezerwowaneMiejsce.isSelected());
+        });
+
+        // Panel zawierający checkbox rezerwacji i udogodnienia
+        JPanel bottomFormPanel = new JPanel(new BorderLayout());
+        bottomFormPanel.setBackground(paleCyan);
+        bottomFormPanel.add(rezerwacjaPanel, BorderLayout.NORTH);
+        bottomFormPanel.add(typyPanel, BorderLayout.CENTER);
+
+        formPanel.add(bottomFormPanel, BorderLayout.SOUTH);
 
         // Układanie formPanel i infoPanel obok siebie z równą szerokością
         JPanel contentPanel = new JPanel(new GridLayout(1, 2, 10, 0));
@@ -197,19 +222,7 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         JPanel confirmPanel = new JPanel();
         confirmPanel.setLayout(new BoxLayout(confirmPanel, BoxLayout.Y_AXIS));
         confirmPanel.setBackground(paleCyan);
-        JCheckBox rezerwowaneMiejsce = new JCheckBox("Czy chcesz zarezerwować konkretne miejsce?");
-        rezerwowaneMiejsce.setBackground(paleCyan);
-        rezerwowaneMiejsce.setSelected(true);
-        rezerwowaneMiejsce.addActionListener(e -> {
-            miejsceComboBox.setEnabled(rezerwowaneMiejsce.isSelected());
-            wagonComboBox.setEnabled(rezerwowaneMiejsce.isSelected());
-            miejsceInwCheckBox.setEnabled(rezerwowaneMiejsce.isSelected());
-            miejsceRowCheckBox.setEnabled(rezerwowaneMiejsce.isSelected());
-            miejsceStoCheckBox.setEnabled(rezerwowaneMiejsce.isSelected());
-        });
-        if(!miejscaWymagajaRezerwacji) {
-            confirmPanel.add(rezerwowaneMiejsce);
-        }
+
         JButton confirmButton = new JButton("Potwierdź zakup");
         confirmButton.addActionListener(e ->{
             if(postojS.getFaktycznyCzasOdjazdu()!=null)
@@ -217,30 +230,48 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
             else {
                 try {
                     if (!rezerwowaneMiejsce.isSelected()) {
-                        BiletBezposredni kupionyBilet = BiletBezposredni.builder()
-                                .cena(cena)
-                                .stacjaOdjazd(stacjaStart)
-                                .stacjaPrzyjazd(stacjaEnd)
-                                .polaczenie(wybranePolaczenie)
-                                .kupujacy(mainFrame.getZalogowanyUser())
-                                .build();
-                        mainFrame.getBiletRepository().save(kupionyBilet);
-                        mainFrame.getBiletBezposredniRepository().save(kupionyBilet);
+                        int iloscZarezerwowanychBiletowBezRezerwacji=0, pojemnoscCalegoSkladu=0;
+                        for(BiletBezposredni bb: wybranePolaczenie.getBiletBezposrednie())
+                            if(bb.getNrMiejsca()==null && bb.getNrWagonu()==null)
+                                iloscZarezerwowanychBiletowBezRezerwacji++;
+                        for(Wagon wagon:kursujacy.getWagony())
+                            pojemnoscCalegoSkladu+=wagon.getPojemnosc()-wagon.getMiejsca().size();
+                        // konsekwencja slabego designu metody getPojemnosc()
+                        if(iloscZarezerwowanychBiletowBezRezerwacji+1>pojemnoscCalegoSkladu)
+                        {
+                            JOptionPane.showMessageDialog(this, "Nie można kupić biletu bez rezerwacji miejsca - zbyt duże obciążenie wybranego połączenia");
+                        } else {
+                            BiletBezposredni kupionyBilet = BiletBezposredni.builder()
+                                    .cena(cena)
+                                    .stacjaOdjazd(stacjaStart)
+                                    .stacjaPrzyjazd(stacjaEnd)
+                                    .polaczenie(wybranePolaczenie)
+                                    .kupujacy(mainFrame.getZalogowanyUser())
+                                    .build();
+                            mainFrame.getBiletRepository().save(kupionyBilet);
+                            mainFrame.getBiletBezposredniRepository().save(kupionyBilet);
+                            JOptionPane.showMessageDialog(this, "Bilet został kupiony! Możesz go znaleźć w sekcji \"Moje bilety\"");
+                            mainFrame.showHome();
+                        }
                     } else {
-                        BiletBezposredni kupionyBilet = BiletBezposredni.builder()
-                                .cena(cena)
-                                .stacjaOdjazd(stacjaStart)
-                                .stacjaPrzyjazd(stacjaEnd)
-                                .nrWagonu((Integer) wagonComboBox.getSelectedItem())
-                                .nrMiejsca((Integer) miejsceComboBox.getSelectedItem())
-                                .polaczenie(wybranePolaczenie)
-                                .kupujacy(mainFrame.getZalogowanyUser())
-                                .build();
-                        mainFrame.getBiletRepository().save(kupionyBilet);
-                        mainFrame.getBiletBezposredniRepository().save(kupionyBilet);
+                        if (Objects.equals(miejsceComboBox.getSelectedItem(), "")) {
+                            JOptionPane.showMessageDialog(this, "Wybierz miejsce do zarezerwowania");
+                        } else {
+                            BiletBezposredni kupionyBilet = BiletBezposredni.builder()
+                                    .cena(cena)
+                                    .stacjaOdjazd(stacjaStart)
+                                    .stacjaPrzyjazd(stacjaEnd)
+                                    .nrWagonu((Integer) wagonComboBox.getSelectedItem())
+                                    .nrMiejsca(Integer.parseInt((String) miejsceComboBox.getSelectedItem()))
+                                    .polaczenie(wybranePolaczenie)
+                                    .kupujacy(mainFrame.getZalogowanyUser())
+                                    .build();
+                            mainFrame.getBiletRepository().save(kupionyBilet);
+                            mainFrame.getBiletBezposredniRepository().save(kupionyBilet);
+                            JOptionPane.showMessageDialog(this, "Bilet został kupiony! Możesz go znaleźć w sekcji \"Moje bilety\"");
+                            mainFrame.showHome();
+                        }
                     }
-                    JOptionPane.showMessageDialog(this, "Bilet został kupiony! Możesz go znaleźć w sekcji \"Moje bilety\"");
-                    mainFrame.showHome();
 
                 } catch (Exception exc) {
                     String msg=String.valueOf(exc);
@@ -287,15 +318,24 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         if (selectedWagonNumber == null) {
             selectedWagonNumber=1;
         }
+        ArrayList<Integer> zajeteWTymWagonie = new ArrayList<>();
+        for(BiletBezposredni bb: wybranePolaczenie.getBiletBezposrednie()){
+            if(Objects.equals(bb.getNrWagonu(), selectedWagonNumber))
+                zajeteWTymWagonie.add(bb.getNrMiejsca());
+        }
+
         try {
-            for (int i = 1; i <= (wagony.get(selectedWagonNumber-1).getPojemnosc()); i++)
-                miejsca.add(i);
+            for (int i = 1; i <= (wagony.get(selectedWagonNumber-1).getMiejsca().size()); i++)
+                if(!zajeteWTymWagonie.contains(i))
+                    miejsca.add(i);
         }catch (Exception ex){
             JOptionPane.showMessageDialog(this, ex);
         }
         miejsceComboBox.removeAllItems();
+        if(miejsca.isEmpty())
+            miejsceComboBox.addItem("");
         for (Integer miejsce : miejsca) {
-            miejsceComboBox.addItem(miejsce);
+            miejsceComboBox.addItem(String.valueOf(miejsce));
         }
         miejsceComboBox.setSelectedIndex(0);
         miejsceComboBox.revalidate();

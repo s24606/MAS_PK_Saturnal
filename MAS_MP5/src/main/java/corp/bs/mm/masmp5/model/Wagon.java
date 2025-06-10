@@ -1,5 +1,6 @@
 package corp.bs.mm.masmp5.model;
 
+import corp.bs.mm.masmp5.enums.TypMiejsca;
 import corp.bs.mm.masmp5.enums.TypWagonu;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -8,6 +9,7 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -83,5 +85,14 @@ public class Wagon {
             }
             return wagon;
         }
+    }
+
+    public ArrayList<TypMiejsca> getDostepneTypyMiejsc(){
+        ArrayList<TypMiejsca> typy = new ArrayList<>();
+        for(Miejsce m: miejsca)
+            for(TypMiejscaEntity typ:m.getTypMiejsca())
+                if(!typy.contains(typ.getTyp()))
+                    typy.add(typ.getTyp());
+        return typy;
     }
 }

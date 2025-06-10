@@ -43,7 +43,7 @@ public class Polaczenie {
     @EqualsAndHashCode.Exclude
     private Set<PrzesiadkowyPolaczenie> przesiadkowyPolaczenia = new HashSet<>();
 
-    @OneToMany(mappedBy = "polaczenie", cascade = CascadeType.REMOVE)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "polaczenie", cascade = CascadeType.REMOVE)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<BiletBezposredni> biletBezposrednie = new HashSet<>();

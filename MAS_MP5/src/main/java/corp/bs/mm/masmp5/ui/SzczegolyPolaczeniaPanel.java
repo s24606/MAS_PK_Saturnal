@@ -1,5 +1,6 @@
 package corp.bs.mm.masmp5.ui;
 
+import corp.bs.mm.masmp5.enums.TypMiejsca;
 import corp.bs.mm.masmp5.enums.TypOsoby;
 import corp.bs.mm.masmp5.model.*;
 import javax.swing.*;
@@ -14,6 +15,8 @@ import java.util.List;
 public class SzczegolyPolaczeniaPanel extends JPanel {
 
     private Polaczenie wybranePolaczenie;
+
+    //WYMAGA fetch = FetchType.EAGER W miejsce.typMiejsca ORAZ polaczenie.postoje
 
     public SzczegolyPolaczeniaPanel(MainFrame mainFrame, Polaczenie wybranePolaczenie) {
         this.wybranePolaczenie=wybranePolaczenie;
@@ -89,18 +92,29 @@ public class SzczegolyPolaczeniaPanel extends JPanel {
         udogodnieniaLabel.setOpaque(true);
         gridPanel.add(udogodnieniaLabel);
 
-        JCheckBox bikePlaceCheckBox = new JCheckBox("Miejsce na rower");
-        bikePlaceCheckBox.setEnabled(false);  // Nieinteraktywny
-        bikePlaceCheckBox.setBackground(paleCyan);
-        gridPanel.add(bikePlaceCheckBox);
-        JCheckBox disabilityPlaceCheckBox = new JCheckBox("Miejsce dla inwalidów");
-        disabilityPlaceCheckBox.setEnabled(false);  // Nieinteraktywny
-        disabilityPlaceCheckBox.setBackground(paleCyan);
-        gridPanel.add(disabilityPlaceCheckBox);
-        JCheckBox tablePlaceCheckBox = new JCheckBox("Miejsce ze stolikiem");
-        tablePlaceCheckBox.setEnabled(false);  // Nieinteraktywny
-        tablePlaceCheckBox.setBackground(paleCyan);
-        gridPanel.add(tablePlaceCheckBox);
+        JCheckBox miejsceRowCheckBox = new JCheckBox("Miejsce na rower");
+        miejsceRowCheckBox.setEnabled(false);  // Nieinteraktywny
+        miejsceRowCheckBox.setBackground(paleCyan);
+        gridPanel.add(miejsceRowCheckBox);
+        JCheckBox miejsceInwCheckBox = new JCheckBox("Miejsce dla inwalidów");
+        miejsceInwCheckBox.setEnabled(false);  // Nieinteraktywny
+        miejsceInwCheckBox.setBackground(paleCyan);
+        gridPanel.add(miejsceInwCheckBox);
+        JCheckBox miejsceStoCheckBox = new JCheckBox("Miejsce ze stolikiem");
+        miejsceStoCheckBox.setEnabled(false);  // Nieinteraktywny
+        miejsceStoCheckBox.setBackground(paleCyan);
+        gridPanel.add(miejsceStoCheckBox);
+
+        ArrayList<TypMiejsca> typyMiejsc = new ArrayList<>();
+        ArrayList<Wagon> wagony = new ArrayList<>(wybranePolaczenie.getPociagKursujacy().getWagony());
+        for(Wagon w: wagony){
+            for(TypMiejsca typ:w.getDostepneTypyMiejsc())
+                if(!typyMiejsc.contains(typ))
+                    typyMiejsc.add(typ);
+        }
+        miejsceRowCheckBox.setSelected(typyMiejsc.contains(TypMiejsca.ROWEROWE));
+        miejsceInwCheckBox.setSelected(typyMiejsc.contains(TypMiejsca.INWALIDA));
+        miejsceStoCheckBox.setSelected(typyMiejsc.contains(TypMiejsca.STOLIK));
 
         detailsPanel.add(gridPanel);
 

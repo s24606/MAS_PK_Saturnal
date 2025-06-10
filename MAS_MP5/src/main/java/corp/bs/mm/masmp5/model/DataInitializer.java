@@ -131,11 +131,10 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         //generowanie stacji
         ArrayList<Stacja> stacje = new ArrayList<>();
         ArrayList<String> miasta = new ArrayList<>(Arrays.asList(
-                "Warszawa", "Kraków", "Łódź", "Gorzów Wielkopolski",
-                "Wrocław", "Poznań", "Gdańsk", "Szczecin",
-                "Katowice", "Lublin", "Białystok", "Rzeszów",
-                "Opole", "Olsztyn", "Kielce", "Zielona Góra" ,
-                "Bydgoszcz", "Toruń"
+                "Białystok", "Bydgoszcz", "Gdańsk", "Gorzów Wielkopolski",
+                "Katowice", "Kielce", "Kraków", "Łódź", "Lublin",
+                "Olsztyn", "Opole", "Poznań", "Rzeszów", "Szczecin",
+                "Toruń", "Warszawa", "Wrocław", "Zielona Góra"
                 ));
         for(String miasto : miasta){
             Stacja st = Stacja.builder()
@@ -220,23 +219,42 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         //generowanie biletow bezposrednich
         ArrayList<BiletBezposredni> biletybezposrednie =new ArrayList<>();
 
-        for(int i=0;i<1000;i++) {
-            Polaczenie pol = polaczenia.get(rand.nextInt(polaczenia.size()));
-            List<Postoj> postojeZPolaczenia = postojRepository.findByPolaczenie(pol);
-            int st1 = rand.nextInt(postojeZPolaczenia.size()-1);
-            int st2 = st1 + 1 + rand.nextInt(postojeZPolaczenia.size() - st1 - 1);
-            Osoba pasazer = pasazerowie.get(rand.nextInt(pasazerowie.size()));
-            BiletBezposredni bb = BiletBezposredni.builder()
-                    .cena(Bilet.obliczCeneBiletu(pasazer, postojeZPolaczenia.get(st1).getStacja(),postojeZPolaczenia.get(st2).getStacja(),postojeZPolaczenia))
-                    .stacjaOdjazd(postojeZPolaczenia.get(st1).getStacja())
-                    .stacjaPrzyjazd(postojeZPolaczenia.get(st2).getStacja())
-                    .polaczenie(pol)
-                    .kupujacy(pasazer)
-                    .build();
-            biletRepository.save(bb);
-            bilety.add(bb);
-            biletBezposredniRepository.save(bb);
-            biletybezposrednie.add(bb);
+
+        //generuje po jednym bilecie na kazdy wagon kazdego połaczenia, ale nie wszystkie mają przypisane nrMiejsc
+        polaczenia = (ArrayList<Polaczenie>) polaczenieRepository.findAll();
+        for(Polaczenie pol: polaczenia) {
+            Pociag kursujacy = pol.getPociagKursujacy();
+            for (int i=1;i<=kursujacy.getWagony().size();i++) {
+                Wagon wagon = new ArrayList<>(kursujacy.getWagony()).get(i-1);
+                List<Postoj> postojeZPolaczenia = postojRepository.findByPolaczenie(pol);
+                int st1 = rand.nextInt(postojeZPolaczenia.size() - 1);
+                int st2 = st1 + 1 + rand.nextInt(postojeZPolaczenia.size() - st1 - 1);
+                Osoba pasazer = pasazerowie.get(rand.nextInt(pasazerowie.size()));
+                Integer nrWagonu;
+                Integer nrMiejsca;
+                if (kursujacy.isObowiazekRezerwacjiMiejsc() || Math.random() > 0.5) {
+                    nrWagonu = i;
+                    nrMiejsca = (int) (Math.random() * wagon.getMiejsca().size()) + 1;
+                } else {
+                    nrWagonu = null;
+                    nrMiejsca = null;
+                }
+
+                BiletBezposredni bb = BiletBezposredni.builder()
+                        .cena(Bilet.obliczCeneBiletu(pasazer, postojeZPolaczenia.get(st1).getStacja(), postojeZPolaczenia.get(st2).getStacja(), postojeZPolaczenia))
+                        .stacjaOdjazd(postojeZPolaczenia.get(st1).getStacja())
+                        .stacjaPrzyjazd(postojeZPolaczenia.get(st2).getStacja())
+                        .polaczenie(pol)
+                        .kupujacy(pasazer)
+                        .nrWagonu(nrWagonu)
+                        .nrMiejsca(nrMiejsca)
+                        .build();
+                biletRepository.save(bb);
+                bilety.add(bb);
+                biletBezposredniRepository.save(bb);
+                biletybezposrednie.add(bb);
+
+            }
         }
 
         for(int i=80;i>0;i--){
