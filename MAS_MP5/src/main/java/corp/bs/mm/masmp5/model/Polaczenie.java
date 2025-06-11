@@ -1,5 +1,6 @@
 package corp.bs.mm.masmp5.model;
 
+import corp.bs.mm.masmp5.constraints.SkrajnePostojeValidation;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
@@ -19,6 +20,9 @@ import java.util.Set;
 @Builder
 @Getter
 @Setter
+@SkrajnePostojeValidation
+// Pinuje, żeby w jednym polaczeniu bylo po jednym postoju początkowym i końcowym,
+// czyli z planowanymi czasami odjazdu/przyjazdu = null
 public class Polaczenie {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -38,36 +42,6 @@ public class Polaczenie {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Postoj> postoje = new ArrayList<>();
-
-    @AssertTrue(message = "Do polaczenia moze byc przypisany jeden postoj bez planowanego czasu odjazdu")
-    private boolean isJedenPostojKoncowy() {
-        if (postoje==null) {
-            return true;
-        }else{
-            int counter=0;
-            for(Postoj p:postoje)
-            {
-                if(p.getPlanowanyCzasOdjazdu()==null)
-                    counter++;
-            }
-            return counter<=1;
-        }
-    }
-
-    @AssertTrue(message = "Do polaczenia moze byc przypisany jeden postoj bez planowanego czasu przyjazdu")
-    private boolean isJedenPostojStartowy() {
-        if (postoje==null) {
-            return true;
-        }else{
-            int counter=0;
-            for(Postoj p:postoje)
-            {
-                if(p.getPlanowanyCzasPrzyjazdu()==null)
-                    counter++;
-            }
-            return counter<=1;
-        }
-    }
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "polaczenie", cascade = CascadeType.REMOVE)
     @ToString.Exclude
