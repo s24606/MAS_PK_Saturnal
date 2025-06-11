@@ -1,19 +1,17 @@
-package corp.bs.mm.masmp5.model;
+package corp.bs.mm.masmp5;
 
 import corp.bs.mm.masmp5.enums.TypMiejsca;
 import corp.bs.mm.masmp5.enums.TypOsoby;
 import corp.bs.mm.masmp5.enums.TypUlgi;
-import corp.bs.mm.masmp5.enums.TypWagonu;
+import corp.bs.mm.masmp5.model.*;
 import corp.bs.mm.masmp5.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cglib.core.Local;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -83,7 +81,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         for(String n: nazwyPociagow){
             Pociag poc = Pociag.builder()
                     .przewoznik(przewoznicy.get(rand.nextInt(przewoznicy.size())))
-                    .obowiazekRezerwacjiMiejsc(Math.random() > 0.5)
+                    .obowiazekRezerwacjiMiejsc(Math.random() > 2.0/3)
                     .nazwa(n)
                     .build();
             pociagRepository.save(poc);
