@@ -1,4 +1,5 @@
 package corp.bs.mm.masmp5.ui;
+import corp.bs.mm.masmp5.enums.TypMiejsca;
 import corp.bs.mm.masmp5.model.*;
 
 import javax.swing.*;
@@ -15,6 +16,10 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
 
     private JComboBox<String> miejsceComboBox;
     private JComboBox<Integer> wagonComboBox;
+
+    private JCheckBox miejsceRowCheckBox;
+    private JCheckBox miejsceInwCheckBox;
+    private JCheckBox miejsceStoCheckBox;
 
 
     public ZakupBiletuBezposredniegoPanel(MainFrame mainFrame, Polaczenie wybranePolaczenie) {
@@ -140,7 +145,6 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
 
         miejsceComboBox = new JComboBox<>();
         gridPanel.add(miejsceComboBox);
-        defineMiejsceCombo();
         wagonComboBox.addActionListener(e -> {
             defineMiejsceCombo();
         });
@@ -168,22 +172,21 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         checkboxPanel.setLayout(new BoxLayout(checkboxPanel, BoxLayout.Y_AXIS));
         checkboxPanel.setBackground(paleCyan);
 
-        JCheckBox miejsceRowCheckBox = new JCheckBox("Miejsce na rower");
-        miejsceRowCheckBox.setBackground(paleCyan);
-        JCheckBox miejsceInwCheckBox = new JCheckBox("Miejsce dla inwalidów");
-        miejsceInwCheckBox.setBackground(paleCyan);
-        JCheckBox miejsceStoCheckBox = new JCheckBox("Miejsce ze stolikiem");
-        miejsceStoCheckBox.setBackground(paleCyan);
-
-        checkboxPanel.add(miejsceRowCheckBox);
-        checkboxPanel.add(miejsceInwCheckBox);
-        checkboxPanel.add(miejsceStoCheckBox);
-
-        typyPanel.setVisible(false);
+        miejsceRowCheckBox = new JCheckBox("Miejsce na rower");
+        miejsceInwCheckBox = new JCheckBox("Miejsce dla inwalidów");
+        miejsceStoCheckBox = new JCheckBox("Miejsce ze stolikiem");
+        for(JCheckBox jcb: new ArrayList<>(Arrays.asList
+                (miejsceRowCheckBox, miejsceInwCheckBox, miejsceStoCheckBox))) {
+            jcb.setBackground(paleCyan);
+            jcb.setSelected(false);
+            jcb.addActionListener(e -> {
+                defineMiejsceCombo();
+            });
+            checkboxPanel.add(jcb);
+        }
 
         typyPanel.add(checkboxPanel, BorderLayout.CENTER);
 
-        // ActionListener umieszczony nizej, zeby
         rezerwowaneMiejsce.addActionListener(e -> {
             miejsceComboBox.setEnabled(rezerwowaneMiejsce.isSelected());
             wagonComboBox.setEnabled(rezerwowaneMiejsce.isSelected());
@@ -303,6 +306,9 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
 
         mainPanel.add(confirmWrapper, BorderLayout.SOUTH);
         add(mainPanel, BorderLayout.CENTER);
+
+        defineMiejsceCombo();
+
     }
     public HashMap<Integer, Wagon> posortujWagonyPoNumerze(Pociag pociag) {
         ArrayList<Wagon> posortowaneWagony = new ArrayList<>(pociag.getWagony());
@@ -323,7 +329,7 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
     }
 
     private void defineMiejsceCombo(){
-        ArrayList<Integer> miejsca = new ArrayList<>();
+        ArrayList<Integer> miejscaNumery = new ArrayList<>();
         ArrayList<Wagon> wagony = new ArrayList<>(wybranePolaczenie.getPociagKursujacy().getWagony());
         Integer selectedWagonNumber = (Integer) wagonComboBox.getSelectedItem();
         if (selectedWagonNumber == null) {
@@ -336,16 +342,22 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         }
 
         try {
-            for (int i = 1; i <= (wagony.get(selectedWagonNumber-1).getMiejsca().size()); i++)
-                if(!zajeteWTymWagonie.contains(i))
-                    miejsca.add(i);
+            ArrayList<Miejsce> miejsca = new ArrayList<>(wagony.get(selectedWagonNumber - 1).getMiejsca());
+            for (int i = 1; i <= miejsca.size()-1; i++)
+                if(!zajeteWTymWagonie.contains(i)) {
+                    ArrayList<TypMiejsca> udogodnienia = miejsca.get(i).getTypy();
+                    if(!miejsceInwCheckBox.isSelected() || udogodnienia.contains(TypMiejsca.INWALIDA))
+                        if(!miejsceRowCheckBox.isSelected() || udogodnienia.contains(TypMiejsca.ROWEROWE))
+                            if(!miejsceStoCheckBox.isSelected() || udogodnienia.contains(TypMiejsca.STOLIK))
+                                miejscaNumery.add(i);
+                }
         }catch (Exception ex){
             JOptionPane.showMessageDialog(this, ex);
         }
         miejsceComboBox.removeAllItems();
-        if(miejsca.isEmpty())
+        if(miejscaNumery.isEmpty())
             miejsceComboBox.addItem("");
-        for (Integer miejsce : miejsca) {
+        for (Integer miejsce : miejscaNumery) {
             miejsceComboBox.addItem(String.valueOf(miejsce));
         }
         miejsceComboBox.setSelectedIndex(0);

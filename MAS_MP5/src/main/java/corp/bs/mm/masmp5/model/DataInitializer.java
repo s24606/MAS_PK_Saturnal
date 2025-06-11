@@ -108,10 +108,6 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                 allWagon.add(w);
 
                 int iloscMiejsc = (int)(Math.random()*20+10);
-                //czy wagon ma udogodnienie
-                double a_w = Math.random();
-                double b_w = Math.random();
-                double c_w = Math.random();
 
                 for (int j = 1; j <= iloscMiejsc; j++) {
                     //List<TypMiejsca> typ = new ArrayList<>();
@@ -119,6 +115,10 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                     //if (b > 0.05) typ.add(TypMiejsca.ROWEROWE);
                     //if (c > 0.15) typ.add(TypMiejsca.INWALIDA);
 
+                    //czy miejsce ma udogodnienie
+                    double a_w = Math.random();
+                    double b_w = Math.random();
+                    double c_w = Math.random();
                     Miejsce m = Miejsce.builder()
                             //.typyMiejsca(typ)
                             .nrMiejsca(j)

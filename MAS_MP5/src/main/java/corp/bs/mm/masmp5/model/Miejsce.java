@@ -50,4 +50,11 @@ public class Miejsce {
     @JoinColumn(name = "wagon_id", nullable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Wagon wagon;
+
+    public ArrayList<TypMiejsca> getTypy(){
+        ArrayList<TypMiejsca> typy= new ArrayList<>();
+        for(TypMiejscaEntity tme:typMiejsca)
+            typy.add(tme.getTyp());
+        return typy;
+    }
 }
