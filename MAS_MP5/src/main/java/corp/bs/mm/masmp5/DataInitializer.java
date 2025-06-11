@@ -309,12 +309,14 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
             bilety.add(bp);
         }
 
+        //anulowanie biletow
         for(int i=80;i>0;i--){
             Bilet doAnulowania = bilety.get(rand.nextInt(bilety.size()));
             doAnulowania.anuluj();
             biletRepository.save(doAnulowania);
         }
 
+        //zaktualizowanie statusu biletow
         for(Postoj postoj: postojRepository.findAll()) {
             postoj.updateRelatedBiletStatus(biletBezposredniRepository);
             postojRepository.save(postoj);

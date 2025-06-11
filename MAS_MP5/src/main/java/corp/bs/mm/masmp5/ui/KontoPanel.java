@@ -21,7 +21,6 @@ public class KontoPanel extends JPanel {
 
         add(Box.createRigidArea(new Dimension(0, 20))); // odstęp
 
-        // Helper method do tworzenia wyśrodkowanych labeli
         add(createCenteredLabel("Imię: " + osoba.getImie()));
         add(createCenteredLabel("Nazwisko: " + osoba.getNazwisko()));
         add(createCenteredLabel("Email: " + osoba.getEmail()));
@@ -37,11 +36,11 @@ public class KontoPanel extends JPanel {
         }
     }
 
-    // Metoda pomocnicza tworząca wyśrodkowany JLabel z odstępem pod spodem
+    // Metoda pomocnicza tworząca wyśrodkowany JLabel z odstepem pod spodem
     private JLabel createCenteredLabel(String text) {
         JLabel label = new JLabel(text);
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
-        label.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0)); // pionowy odstęp
+        label.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
         return label;
     }
 }

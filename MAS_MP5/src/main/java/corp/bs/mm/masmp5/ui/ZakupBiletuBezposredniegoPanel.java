@@ -35,12 +35,13 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(paleCyan);
 
-        // Panel formPanel
+        // Prawy panel - informacje o przejeździe
         JPanel infoPanel = new JPanel(new GridLayout(7, 2, 5, 5));
         infoPanel.setBackground(paleCyan);
         infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         infoPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, (int)(getPreferredSize().height * 0.6)));
 
+        // Przewoźnik
         JLabel przewoznikLabel = new JLabel("Przewoźnik:");
         przewoznikLabel.setFont(desc);
         infoPanel.add(przewoznikLabel);
@@ -48,8 +49,26 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         przewoznikValue.setFont(value);
         infoPanel.add(przewoznikValue);
 
+        //Oznaczenie połączenia
+        JLabel nrPolaczeniaLabel = new JLabel("Nr połączenia:");
+        nrPolaczeniaLabel.setFont(desc);
+        infoPanel.add(nrPolaczeniaLabel);
+        JLabel nrPolaczeniaValue = new JLabel(wybranePolaczenie.getOznaczeniePolaczenia());
+        nrPolaczeniaValue.setFont(value);
+        infoPanel.add(nrPolaczeniaValue);
+
+        //Odjazd
         Postoj postojS = mainFrame.getWyszukanePostojeS().get(wybranePolaczenie.getPolaczenieId());
         Postoj postojE = mainFrame.getWyszukanePostojeE().get(wybranePolaczenie.getPolaczenieId());
+        LocalDateTime odjazd = postojS.getPlanowanyCzasOdjazdu();
+        JLabel odjazdLabel = new JLabel("Odjazd:");
+        odjazdLabel.setFont(desc);
+        infoPanel.add(odjazdLabel);
+        JLabel odjazdValue = new JLabel(odjazd.format(DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy")));
+        odjazdValue.setFont(value);
+        infoPanel.add(odjazdValue);
+
+        // Czas Przejazdu
         long roznicaMinuty = Duration.between(postojS.getPlanowanyCzasOdjazdu(), postojE.getPlanowanyCzasPrzyjazdu()).toMinutes();
         String czasPrzejazdu = (roznicaMinuty < 60) ? roznicaMinuty + "m" : roznicaMinuty / 60 + "h " + roznicaMinuty % 60 + "m";
         JLabel czasPrzejazduLabel = new JLabel("Czas przejazdu:");
@@ -59,21 +78,7 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         czasPrzejazduValue.setFont(value);
         infoPanel.add(czasPrzejazduValue);
 
-        JLabel nrPolaczeniaLabel = new JLabel("Nr połączenia:");
-        nrPolaczeniaLabel.setFont(desc);
-        infoPanel.add(nrPolaczeniaLabel);
-        JLabel nrPolaczeniaValue = new JLabel(wybranePolaczenie.getOznaczeniePolaczenia());
-        nrPolaczeniaValue.setFont(value);
-        infoPanel.add(nrPolaczeniaValue);
-
-        LocalDateTime odjazd = postojS.getPlanowanyCzasOdjazdu();
-        JLabel odjazdLabel = new JLabel("Odjazd:");
-        odjazdLabel.setFont(desc);
-        infoPanel.add(odjazdLabel);
-        JLabel odjazdValue = new JLabel(odjazd.format(DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy")));
-        odjazdValue.setFont(value);
-        infoPanel.add(odjazdValue);
-
+        // Stacja początkowa
         Stacja stacjaStart = mainFrame.getStacjaStart();
         JLabel odLabel = new JLabel("Od:");
         odLabel.setFont(desc);
@@ -82,6 +87,7 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         odValue.setFont(value);
         infoPanel.add(odValue);
 
+        // Stacja końcowa
         Stacja stacjaEnd = mainFrame.getStacjaEnd();
         JLabel doLabel = new JLabel("Do:");
         doLabel.setFont(desc);
@@ -90,6 +96,7 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         doValue.setFont(value);
         infoPanel.add(doValue);
 
+        // Cena
         JLabel cenaLabel = new JLabel("Twoja cena:");
         cenaLabel.setFont(desc);
         infoPanel.add(cenaLabel);
@@ -98,7 +105,7 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         cenaValue.setFont(value);
         infoPanel.add(cenaValue);
 
-        // Panel formPanel
+        // lewy panel - przycisk wstecz i wybór miejsca
         JPanel formPanel = new JPanel(new BorderLayout());
         formPanel.setBackground(paleCyan);
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -124,7 +131,7 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         JPanel gridPanel = new JPanel(new GridLayout(2, 2, 5, 5));
         gridPanel.setBackground(paleCyan);
 
-        // nagłówki w gridzie
+        // Nagłówki w gridzie
         JLabel wagonHeaderLabel = new JLabel("Wagon", SwingConstants.CENTER);
         wagonHeaderLabel.setBackground(Color.BLUE);
         wagonHeaderLabel.setForeground(Color.WHITE);
@@ -137,7 +144,7 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         miejsceHeaderLabel.setOpaque(true);
         gridPanel.add(miejsceHeaderLabel);
 
-        // dropboxy z numerami
+        // Dropboxy z numerami
         HashMap<Integer, Wagon> wagony = posortujWagonyPoNumerze(kursujacy);
         ArrayList<Integer> nrWagonow = new ArrayList<>(wagony.keySet());
         wagonComboBox = new JComboBox<>(nrWagonow.toArray(new Integer[0]));
@@ -151,17 +158,17 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
 
         formPanel.add(gridPanel, BorderLayout.CENTER);
 
-        // Panel z checkboxem rezerwacji miejsca (pod gridem)
+        // CheckBox rezerwacji miejsca
         JPanel rezerwacjaPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         rezerwacjaPanel.setBackground(paleCyan);
-        JCheckBox rezerwowaneMiejsce = new JCheckBox("Czy chcesz zarezerwować konkretne miejsce?");
+        JCheckBox rezerwowaneMiejsce = new JCheckBox("Chcę zarezerwować konkretne miejsce");
         rezerwowaneMiejsce.setBackground(paleCyan);
         rezerwowaneMiejsce.setSelected(true);
         if(!miejscaWymagajaRezerwacji) {
             rezerwacjaPanel.add(rezerwowaneMiejsce);
         }
 
-        // Panel z checkboxami (pod checkboxem rezerwacji)
+        // Panel filtrowania typu miejsc
         JPanel typyPanel = new JPanel(new BorderLayout());
         typyPanel.setBackground(paleCyan);
 
@@ -207,21 +214,23 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         JPanel contentPanel = new JPanel(new GridLayout(1, 2, 10, 0));
         contentPanel.setBackground(paleCyan);
 
-        // Wrapper dla formPanel żeby ograniczyć jego wysokość
+        // Wrapper dla formPanel
         JPanel formPanelWrapper = new JPanel(new BorderLayout());
         formPanelWrapper.setBackground(paleCyan);
         formPanelWrapper.add(formPanel, BorderLayout.NORTH);
+        formPanelWrapper.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
         contentPanel.add(formPanelWrapper);
 
-        // Wrapper dla infoPanel żeby ograniczyć jego wysokość
+        // Wrapper dla infoPanel
         JPanel infoPanelWrapper = new JPanel(new BorderLayout());
         infoPanelWrapper.setBackground(paleCyan);
-        infoPanelWrapper.add(infoPanel, BorderLayout.NORTH);
+        infoPanelWrapper.add(infoPanel, BorderLayout.SOUTH);
+        infoPanelWrapper.setBorder(BorderFactory.createEmptyBorder(0, 0, 90, 0));
         contentPanel.add(infoPanelWrapper);
 
         mainPanel.add(contentPanel, BorderLayout.CENTER);
 
-        // Panel przycisku na dole, na środku
+        // Panel przycisku potwierdzenia
         JPanel confirmPanel = new JPanel();
         confirmPanel.setLayout(new BoxLayout(confirmPanel, BoxLayout.Y_AXIS));
         confirmPanel.setBackground(paleCyan);
@@ -299,7 +308,8 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         });
 
         confirmPanel.add(confirmButton);
-
+        int buttonHeight = confirmButton.getPreferredSize().height;
+        confirmPanel.add(Box.createVerticalStrut((int)(buttonHeight * 1.5)));
         JPanel confirmWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
         confirmWrapper.setBackground(paleCyan);
         confirmWrapper.add(confirmPanel);
@@ -335,12 +345,14 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         if (selectedWagonNumber == null) {
             selectedWagonNumber=1;
         }
+        // Ustalenie które miejsca są zajęte w wybranym wagonie na podstawie istniejących biletów
         ArrayList<Integer> zajeteWTymWagonie = new ArrayList<>();
         for(BiletBezposredni bb: wybranePolaczenie.getBiletBezposrednie()){
             if(Objects.equals(bb.getNrWagonu(), selectedWagonNumber))
                 zajeteWTymWagonie.add(bb.getNrMiejsca());
         }
 
+        // Ustalenie które numery miejsc w wybranym wagonie są wolne oraz spełniają wymagania filtrowania udogodnień
         try {
             ArrayList<Miejsce> miejsca = new ArrayList<>(wagony.get(selectedWagonNumber - 1).getMiejsca());
             for (int i = 1; i <= miejsca.size()-1; i++)
@@ -354,6 +366,7 @@ public class ZakupBiletuBezposredniegoPanel extends JPanel {
         }catch (Exception ex){
             JOptionPane.showMessageDialog(this, ex);
         }
+        // Wstawienie dostępnych numerów miejsc do ComboBoxa
         miejsceComboBox.removeAllItems();
         if(miejscaNumery.isEmpty())
             miejsceComboBox.addItem("");

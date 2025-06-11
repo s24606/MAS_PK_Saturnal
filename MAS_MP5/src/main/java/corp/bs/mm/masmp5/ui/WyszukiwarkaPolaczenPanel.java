@@ -66,7 +66,7 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
         comboEnd.setPreferredSize(new Dimension(200, 25));
         formPanel.add(comboEnd, gbc);
 
-        // Wyszukaj po czasie...
+        // Wyszukaj po czasie
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.gridwidth = 2;
@@ -98,6 +98,7 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
         formPanel.add(radioButtons, gbc);
 
 
+        // comboBoxy - dni
         String[] dni = new String[31];
         for (int i = 1; i <= 31; i++) {
             dni[i-1] = String.valueOf(i);
@@ -105,6 +106,7 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
         JComboBox<String> dayCombo = new JComboBox<>(dni);
         dayCombo.setPreferredSize(new Dimension(30, 25));
 
+        // comboBoxy - miesiace
         String[] miesiace = new String[12];
         for (int i = 1; i <= 12; i++) {
             miesiace[i-1] = String.valueOf(i);
@@ -112,6 +114,7 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
         JComboBox<String> monthCombo = new JComboBox<>(miesiace);
         monthCombo.setPreferredSize(new Dimension(30, 25));
 
+        // comboBoxy - lata
         String[] lata = new String[2];
         lata[0] = String.valueOf(LocalDateTime.now().getYear());
         lata[1] = String.valueOf(LocalDateTime.now().getYear()+1);
@@ -123,6 +126,7 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
         monthCombo.setSelectedItem(String.valueOf(now.getMonthValue()));
         yearCombo.setSelectedItem(String.valueOf(now.getYear()));
 
+        // spinner - godzina
         SpinnerDateModel timeModel = new SpinnerDateModel();
         JSpinner timeSpinner = new JSpinner(timeModel);
         JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(timeSpinner, "HH:mm");
@@ -143,7 +147,6 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
         dateTimePanel.setBackground(paleCyan);
         formPanel.add(dateTimePanel, gbc);
 
-        // resetujemy gbc jeśli dalej coś dodajesz
         gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0;
@@ -190,15 +193,10 @@ public class WyszukiwarkaPolaczenPanel extends JPanel {
                         (rbOdjazdu.isSelected() ? terminResult : null),
                         (rbPrzyjazdu.isSelected() ? terminResult : null)
                 );
-                // Tworzymy nowy panel z wynikami
                 WynikiWyszukiwaniaBezposredniegoPanel wynikiPanel = new WynikiWyszukiwaniaBezposredniegoPanel(mainFrame);
                 wynikiPanel.setName("WYNIKI_BEZPOSREDNIE");
                 mainFrame.getCardsPanel().add(wynikiPanel, "WYNIKI_BEZPOSREDNIE");
-
-
                 mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "WYNIKI_BEZPOSREDNIE");
-
-                // Odświeżamy layout
                 mainFrame.getCardsPanel().revalidate();
                 mainFrame.getCardsPanel().repaint();
             }

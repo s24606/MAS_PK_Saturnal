@@ -121,7 +121,7 @@ public class WynikiWyszukiwaniaBezposredniegoPanel extends JPanel {
 
         add(timePanel);
 
-        // Przyciski
+        // Przyciski wyszukiwania
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         buttonsPanel.setBackground(paleCyan);
         JButton btnBezposrednie = new JButton("Wyszukaj połączenia bezpośrednie");
@@ -157,15 +157,10 @@ public class WynikiWyszukiwaniaBezposredniegoPanel extends JPanel {
                         (rbOdjazdu.isSelected() ? terminResult : null),
                         (rbPrzyjazdu.isSelected() ? terminResult : null)
                 );
-                // Tworzymy nowy panel z wynikami
                 WynikiWyszukiwaniaBezposredniegoPanel wynikiPanel = new WynikiWyszukiwaniaBezposredniegoPanel(mainFrame);
                 wynikiPanel.setName("WYNIKI_BEZPOSREDNIE");
                 mainFrame.getCardsPanel().add(wynikiPanel, "WYNIKI_BEZPOSREDNIE");
-
-
                 mainFrame.getCardLayout().show(mainFrame.getCardsPanel(), "WYNIKI_BEZPOSREDNIE");
-
-                // Odświeżamy layout
                 mainFrame.getCardsPanel().revalidate();
                 mainFrame.getCardsPanel().repaint();
             }

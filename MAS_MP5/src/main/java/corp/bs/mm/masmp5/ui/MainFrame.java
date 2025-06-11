@@ -14,44 +14,29 @@ import java.awt.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Getter
 public class MainFrame extends JFrame {
 
-    @Getter
     private final StacjaRepository stacjaRepo;
     private final OsobaRepository osobaRepo;
-    @Getter
     private final PolaczenieRepository polaczenieRepo;
-    @Getter
     private final BiletRepository biletRepository;
-    @Getter
     private final BiletBezposredniRepository biletBezposredniRepository;
 
-    //atrybuty do wyszukiwania
-    @Getter
+    // Atrybuty do wyszukiwania
     private Stacja stacjaStart;
-    @Getter
     private Stacja stacjaEnd;
     @Setter
-    @Getter
     private LocalDateTime terminStart;
-    @Getter
     @Setter
     private LocalDateTime terminEnd;
-    @Getter
     private Polaczenie bestPolaczenie;
-    @Getter
     HashMap<Long, Postoj> wyszukanePostojeS = new HashMap<>();
-    @Getter
     HashMap<Long, Postoj> wyszukanePostojeE = new HashMap<>();
-    private LocalDateTime displayTerminPrev;
-    private LocalDateTime displayTerminNext;
 
 
-    @Getter
     private Osoba zalogowanyUser;
-    @Getter
     private JPanel cardsPanel;
-    @Getter
     private CardLayout cardLayout;
     private JPanel navBar;
 
@@ -74,8 +59,6 @@ public class MainFrame extends JFrame {
         terminStart=null;
         terminEnd=null;
         bestPolaczenie=null;
-        displayTerminPrev=null;
-        displayTerminNext=null;
 
         setTitle("Saturnal");
         setSize(700, 450);
@@ -88,20 +71,29 @@ public class MainFrame extends JFrame {
         cardsPanel.add(new JPanel(), "KONTO");
 
         JPanel homePanel = new JPanel();
+        homePanel.setLayout(new BoxLayout(homePanel, BoxLayout.Y_AXIS));
         homePanel.setBackground(new Color(255, 255, 155));
-        homePanel.add(new JLabel("Witaj na stronie głównej!"));
+
+        // Nagłówek
+        JLabel headerLabel = new JLabel("Witaj na stronie głównej!");
+        headerLabel.setFont(new Font("Arial", Font.BOLD, 32));
+        headerLabel.setAlignmentX(CENTER_ALIGNMENT);
+        homePanel.add(headerLabel);
+
 
         cardsPanel.add(homePanel, "HOME");
 
-        // NAVBAR tworzony dynamicznie
+        // NAVBAR
         navBar = new JPanel(new BorderLayout());
-        updateNavBar(); // <- pierwsze załadowanie
+        updateNavBar();
 
         setLayout(new BorderLayout());
         add(navBar, BorderLayout.NORTH);
         add(cardsPanel, BorderLayout.CENTER);
 
+        // Przycisk do ekranu wyszukiwania
         JButton btnGoSearch = new JButton("Wyszukiwarka");
+        btnGoSearch.setAlignmentX(CENTER_ALIGNMENT);
         btnGoSearch.addActionListener(e -> {
             for (Component c : cardsPanel.getComponents()) {
                 if ("SEARCH".equals(c.getName())) {
@@ -115,22 +107,23 @@ public class MainFrame extends JFrame {
             cardLayout.show(cardsPanel, "SEARCH");
             cardsPanel.revalidate();
             cardsPanel.repaint();
-        });homePanel.add(btnGoSearch);
+        });
+        homePanel.add(Box.createVerticalStrut(20));
+        homePanel.add(btnGoSearch);
 
         cardLayout.show(cardsPanel, "HOME");
 
         setVisible(true);
     }
 
-    /**
-     * Tworzy i aktualizuje pasek nawigacji w zależności od stanu zalogowania
-     */
+
     private void updateNavBar() {
         navBar.removeAll();
         Color bgColor = new Color(224, 224, 224);
         navBar.setBackground(bgColor);
         navBar.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
+        // Przycisk do strony głównej
         JButton btnHome = new JButton("Strona główna");
         btnHome.addActionListener(e -> cardLayout.show(cardsPanel, "HOME"));
 
@@ -138,12 +131,11 @@ public class MainFrame extends JFrame {
         rightButtons.setBackground(bgColor);
 
         if (zalogowanyUser != null) {
+            // Przycisk KONTO (dla zalogowanych)
             JButton btnKonto = new JButton("Konto");
             btnKonto.addActionListener(e -> {
                 if (zalogowanyUser != null) {
                     JPanel kontoPanel = new KontoPanel(zalogowanyUser);
-
-                    // Usuń starą wersję karty "KONTO", jeśli istnieje
                     Component[] components = cardsPanel.getComponents();
                     for (Component c : components) {
                         if (c.getName() != null && c.getName().equals("KONTO")) {
@@ -151,7 +143,6 @@ public class MainFrame extends JFrame {
                             break;
                         }
                     }
-
                     kontoPanel.setName("KONTO");
                     cardsPanel.add(kontoPanel, "KONTO");
                     cardLayout.show(cardsPanel, "KONTO");
@@ -160,16 +151,14 @@ public class MainFrame extends JFrame {
                 }
             });
 
+            // Przycisk WYLOGUJ (dla zalogowanych)
             JButton btnWyloguj = new JButton("Wyloguj się");
 
             btnWyloguj.addActionListener(e -> {
                 zalogowanyUser = null;
                 JOptionPane.showMessageDialog(this, "Wylogowano.");
-
-                // wróć na stronę główną
                 cardLayout.show(cardsPanel, "HOME");
-
-                updateNavBar(); // odśwież navbar
+                updateNavBar();
             });
 
             rightButtons.add(btnKonto);
@@ -178,6 +167,7 @@ public class MainFrame extends JFrame {
             JButton btnZaloguj = new JButton("Zaloguj się");
             JButton btnZarejestruj = new JButton("Zarejestruj się");
 
+            // Przycisk ZALOGUJ (dla niezalogowanych)
             btnZaloguj.addActionListener(e -> {
                 List<Osoba> wszyscy = (List<Osoba>) osobaRepo.findAll();
 
@@ -195,14 +185,12 @@ public class MainFrame extends JFrame {
                         .filter(o -> new HashSet<>(o.getRole()).containsAll(List.of(TypOsoby.PASAZER, TypOsoby.PRACOWNIK)))
                         .collect(Collectors.toCollection(ArrayList::new));
 
-                // Usuń starą kartę LOGIN, jeśli istnieje
                 for (Component c : cardsPanel.getComponents()) {
                     if ("LOGIN".equals(c.getName())) {
                         cardsPanel.remove(c);
                         break;
                     }
                 }
-
                 LoginPanel loginPanel = new LoginPanel(pasazerowie, pracownicy, obaTypy, this);
                 cardsPanel.add(loginPanel, "LOGIN");
                 cardLayout.show(cardsPanel, "LOGIN");
@@ -238,15 +226,17 @@ public class MainFrame extends JFrame {
     }
 
     public ArrayList<Polaczenie> findPolaczeniaForStacje() {
+        //sporzadzenie map postojów poczatkowych po ich nrPolaczen
         ArrayList<Polaczenie> polaczeniaS = new ArrayList<>();
         HashMap<Long, Postoj> mapaAllPostojS = new HashMap<>();
         for(Postoj postoj: stacjaStart.getPostoje()){
             polaczeniaS.add(postoj.getPolaczenie());
             mapaAllPostojS.put(postoj.getPolaczenie().getPolaczenieId(),postoj);
         }
+
+        //sporzadzenie mapy postojów końcowych, ale tylko tych w ramach połaczeń obecnych w postojach początkowych
         ArrayList<Polaczenie> matchingPolaczenia = new ArrayList<>();
         HashMap<Long, Postoj> mapaPostojE = new HashMap<>();
-
         for(Postoj postojEnd: stacjaEnd.getPostoje()) {
             if (polaczeniaS.contains(postojEnd.getPolaczenie())) {
                 Postoj postojStart = mapaAllPostojS.get(postojEnd.getPolaczenie().getPolaczenieId());
@@ -258,12 +248,14 @@ public class MainFrame extends JFrame {
             }
         }
 
+        //sporzadzenie mapy postojow początkowych, ale tylko połączeń które przejeżdżają przez obie stacje
         HashMap<Long, Postoj> mapaPostojS = new HashMap<>();
         for(Postoj postojS: stacjaStart.getPostoje())
             if(matchingPolaczenia.contains(postojS.getPolaczenie()))
                 mapaPostojS.put(postojS.getPolaczenie().getPolaczenieId(),postojS);
 
 
+        // określenie najblizszego polaczenie na podstawie najblizszego postoju do wybranego terminu odjazdu/przyjazdu
         HashMap <Long, Postoj> refMap;
         LocalDateTime terminDocelowy;
         if(terminStart!=null) {
@@ -275,7 +267,6 @@ public class MainFrame extends JFrame {
             refMap = mapaPostojE;
         }
         Postoj najblizszyPostoj = znajdzNajblizszyPostoj(refMap, terminDocelowy, this.terminStart!=null);
-        // lokalizacja najblizsze polaczenie na podstawie najblizszego postoju
         Long najbliszePolaczenieId = null;
         for (Map.Entry<Long, Postoj> entry : refMap.entrySet()) {
             if (entry.getValue().equals(najblizszyPostoj)) {
@@ -283,10 +274,9 @@ public class MainFrame extends JFrame {
             }
         }
 
-
+        // przygotowanie posortowanej listy wyszukanych połączeń
         ArrayList<Postoj> sortedPostoje = sortujPostojePoCzasie(mapaPostojS, true);
         refMap = mapaPostojS;
-        //przygotowanie ArrayList posortowanych polaczen
         ArrayList<Polaczenie> sortedPolaczenia = new ArrayList<>();
         for(Postoj pos : sortedPostoje){
             Long polaczenieId = null;
@@ -305,8 +295,6 @@ public class MainFrame extends JFrame {
             }
             sortedPolaczenia.add(szukane);
         }
-
-
 
         this.wyszukanePostojeS=mapaPostojS;
         this.wyszukanePostojeE=mapaPostojE;
@@ -353,8 +341,4 @@ public class MainFrame extends JFrame {
         }
         return najblizszyPostoj;
     }
-
-
-
-
 }

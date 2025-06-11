@@ -25,7 +25,7 @@ public class SzczegolyPolaczeniaPanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(paleCyan);
 
-        // Panel dla szczegółów
+        // /Prawa cześć - dane połączenia
         JPanel detailsPanel = new JPanel();
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
         detailsPanel.setBackground(paleCyan);
