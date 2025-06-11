@@ -1,10 +1,9 @@
 package corp.bs.mm.masmp5.model;
 
 import corp.bs.mm.masmp5.enums.StatusBiletu;
-import corp.bs.mm.masmp5.model.constraints.CzasPostojuValidation;
-import corp.bs.mm.masmp5.model.constraints.NrToruValidation;
+import corp.bs.mm.masmp5.constraints.CzasPostojuValidation;
+import corp.bs.mm.masmp5.constraints.NrToruValidation;
 import corp.bs.mm.masmp5.repository.BiletBezposredniRepository;
-import corp.bs.mm.masmp5.repository.BiletRepository;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -13,13 +12,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.StatelessSession;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 //plinuje czy przypisany nrToru jest zgodny z ilością torów na przypisanej stacji
 @NrToruValidation

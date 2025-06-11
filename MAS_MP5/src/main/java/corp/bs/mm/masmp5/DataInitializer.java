@@ -263,31 +263,6 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
             }
         }
 
-        //test walidacji StacjeOfPolaczenie
-        //BiletBezposredni bbtest = BiletBezposredni.builder()
-        //        .cena(19.96)
-        //        .stacjaOdjazd(stacje.get(17)) //zielona góra - 0 postojów w jakimkolwiek połaczeniu
-        //        .stacjaPrzyjazd(stacje.get(0))
-        //        .polaczenie(polaczenia.get(rand.nextInt(polaczenia.size())))
-        //        .kupujacy(pasazerowie.get(rand.nextInt(pasazerowie.size())))
-        //        .nrWagonu(1)
-        //        .nrMiejsca(1)
-        //        .build();
-        //biletRepository.save(bbtest);
-
-
-        //test metody Osoba.przejrzyjBilety() - wymaga FetchType.EAGER w Osoba.bilety
-        /*pasazerowie=new ArrayList<>();
-        for(Osoba o : osobaRepository.findAll()){
-            if(o.getRole().contains(TypOsoby.PASAZER))
-                pasazerowie.add(o);
-        }
-        for(Osoba pasazer: pasazerowie) {
-            String tresc = pasazer.przejrzyjBilety();
-            if(tresc.contains("\n"))
-                logger.info(pasazer.getImie() + ": " + tresc);
-        }*/
-
         //generowanie biletow przesiadkowych
         for (int i = 0; i < 50; i++) {
             Osoba pasazer = pasazerowie.get(rand.nextInt(pasazerowie.size()));
@@ -334,10 +309,60 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
             postojRepository.save(postoj);
         }
 
+        //test walidacji StacjeOfPolaczenie
+        //BiletBezposredni bbtest = BiletBezposredni.builder()
+        //        .cena(19.96)
+        //        .stacjaOdjazd(stacje.get(17)) //zielona góra - 0 postojów w jakimkolwiek połaczeniu
+        //        .stacjaPrzyjazd(stacje.get(0))
+        //        .polaczenie(polaczenia.get(rand.nextInt(polaczenia.size())))
+        //        .kupujacy(pasazerowie.get(rand.nextInt(pasazerowie.size())))
+        //        .nrWagonu(1)
+        //        .nrMiejsca(1)
+        //        .build();
+        //biletRepository.save(bbtest);
+
+        //test walidacji ActualNrValidation
+        //Polaczenie pol = polaczenia.get(rand.nextInt(polaczenia.size()));
+        //ArrayList<Postoj> postojs = new ArrayList<>(pol.getPostoje());
+        //Postoj pos1 = postojs.get(rand.nextInt(postojs.size()));
+        //Postoj pos2 = postojs.get(rand.nextInt(postojs.size()));
+        //boolean postojeNotFound=true;
+        //while (postojeNotFound){
+        //    if(pos1.getPlanowanyCzasPrzyjazdu() !=null && pos2.getPlanowanyCzasPrzyjazdu() !=null){
+        //        if(pos1.getPlanowanyCzasPrzyjazdu().isBefore(pos2.getPlanowanyCzasPrzyjazdu()))
+        //            postojeNotFound=false;
+        //        else{
+        //            pos1 = postojs.get(rand.nextInt(postojs.size()));
+        //            pos2 = postojs.get(rand.nextInt(postojs.size()));
+        //        }
+        //    }else{
+        //        pos1 = postojs.get(rand.nextInt(postojs.size()));
+        //        pos2 = postojs.get(rand.nextInt(postojs.size()));
+        //    }
+        //}
+        //BiletBezposredni bbtest = BiletBezposredni.builder()
+        //        .cena(19.96)
+        //        .stacjaOdjazd(pos1.getStacja())
+        //        .stacjaPrzyjazd(pos2.getStacja())
+        //        .polaczenie(pol)
+        //        .kupujacy(pasazerowie.get(rand.nextInt(pasazerowie.size())))
+        //        .nrWagonu(0)
+        //        .nrMiejsca(null)
+        //        .build();
+        //biletRepository.save(bbtest);
 
 
-        //wagonRepository.delete(allWagon.get(0));
-
+        //test metody Osoba.przejrzyjBilety() - wymaga FetchType.EAGER w Osoba.bilety
+        /*pasazerowie=new ArrayList<>();
+        for(Osoba o : osobaRepository.findAll()){
+            if(o.getRole().contains(TypOsoby.PASAZER))
+                pasazerowie.add(o);
+        }
+        for(Osoba pasazer: pasazerowie) {
+            String tresc = pasazer.przejrzyjBilety();
+            if(tresc.contains("\n"))
+                logger.info(pasazer.getImie() + ": " + tresc);
+        }*/
 
         logger.info("ok");
 

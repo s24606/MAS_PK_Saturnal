@@ -1,4 +1,4 @@
-package corp.bs.mm.masmp5.model.constraints;
+package corp.bs.mm.masmp5.constraints;
 
 import corp.bs.mm.masmp5.enums.TypOsoby;
 import corp.bs.mm.masmp5.model.Osoba;

@@ -1,4 +1,4 @@
-package corp.bs.mm.masmp5.model.constraints;
+package corp.bs.mm.masmp5.constraints;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
@@ -6,11 +6,11 @@ import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = CzasBiletValidator.class)
+@Constraint(validatedBy = CzasPostojuValidator.class)
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CzasBiletValidation {
-    String message() default "Czas przyjazdu musi być po czasie odjazdu";
+public @interface CzasPostojuValidation {
+    String message() default "Czas odjazdu musi być po czasie przyjazdu (zarowno planowany jak i faktyczny)";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

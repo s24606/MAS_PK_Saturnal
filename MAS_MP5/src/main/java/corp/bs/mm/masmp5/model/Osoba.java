@@ -2,7 +2,7 @@ package corp.bs.mm.masmp5.model;
 
 import corp.bs.mm.masmp5.enums.TypUlgi;
 import corp.bs.mm.masmp5.enums.TypOsoby;
-import corp.bs.mm.masmp5.model.constraints.RolesAttributesValidation;
+import corp.bs.mm.masmp5.constraints.RolesAttributesValidation;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;

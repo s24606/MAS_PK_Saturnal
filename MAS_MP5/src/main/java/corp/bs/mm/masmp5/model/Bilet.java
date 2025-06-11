@@ -2,7 +2,7 @@ package corp.bs.mm.masmp5.model;
 
 import corp.bs.mm.masmp5.enums.StatusBiletu;
 import corp.bs.mm.masmp5.enums.TypUlgi;
-import corp.bs.mm.masmp5.model.constraints.KupujacyPasazerValidation;
+import corp.bs.mm.masmp5.constraints.KupujacyPasazerValidation;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
@@ -14,7 +14,6 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity

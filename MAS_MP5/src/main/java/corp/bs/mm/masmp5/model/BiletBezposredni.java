@@ -1,7 +1,8 @@
 package corp.bs.mm.masmp5.model;
 
 import corp.bs.mm.masmp5.enums.StatusBiletu;
-import corp.bs.mm.masmp5.model.constraints.StacjeOfPolaczenieValidation;
+import corp.bs.mm.masmp5.constraints.ActualNrValidation;
+import corp.bs.mm.masmp5.constraints.StacjeOfPolaczenieValidation;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +11,9 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @StacjeOfPolaczenieValidation
-// Pilnuje, żeby wprzypisanych stacjach były postoje w ramach powiązanego połaczenia
+// Pilnuje, żeby w przypisanych stacjach były postoje w ramach powiązanego połaczenia
+@ActualNrValidation
+// Pilnuje, żeby nrMiejsca i nrWagonu wskazywał na istniejąe miejsce w pociagu wykonującym powiazane polaczenie
 @SuperBuilder
 @Entity
 @NoArgsConstructor

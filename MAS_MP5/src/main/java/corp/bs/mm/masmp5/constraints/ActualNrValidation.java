@@ -1,4 +1,4 @@
-package corp.bs.mm.masmp5.model.constraints;
+package corp.bs.mm.masmp5.constraints;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
@@ -6,12 +6,11 @@ import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = StacjeOfPolaczenieValidator.class)
+@Constraint(validatedBy = ActualNrValidator.class)
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface StacjeOfPolaczenieValidation {
-    String message() default "Stacje odjazdu i przyjazdu muszą należeć do postojów powiązanych z połączeniem";
+public @interface ActualNrValidation {
+    String message() default "Numer miejsca i wagonu musi wskazywać na istniejace miejsce w pociagu kursujacym w powaizanym polaczeniu";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
-
