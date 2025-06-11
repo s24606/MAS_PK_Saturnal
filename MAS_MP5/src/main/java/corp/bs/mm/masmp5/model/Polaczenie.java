@@ -2,13 +2,11 @@ package corp.bs.mm.masmp5.model;
 
 import corp.bs.mm.masmp5.constraints.SkrajnePostojeValidation;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

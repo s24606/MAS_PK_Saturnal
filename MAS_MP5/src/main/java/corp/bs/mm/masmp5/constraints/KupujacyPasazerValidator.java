@@ -9,12 +9,10 @@ public class KupujacyPasazerValidator implements ConstraintValidator<KupujacyPas
 
     @Override
     public boolean isValid(Osoba kupujacy, ConstraintValidatorContext context) {
-        // Sprawdzanie, czy kupujący ma rolę PASAZER
         if (kupujacy == null || kupujacy.getRole() == null) {
             return false;
         }
 
-        // Sprawdzenie, czy lista ról zawiera PASAZER
         return kupujacy.getRole().contains(TypOsoby.PASAZER);
     }
 }

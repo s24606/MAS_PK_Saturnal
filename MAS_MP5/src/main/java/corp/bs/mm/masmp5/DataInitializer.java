@@ -167,7 +167,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         ArrayList<Postoj> postoje = new ArrayList<>();
         for(Pociag p : pociagi){
             int nrLinii=rand.nextInt(linie.size());
-            LocalDateTime termin = LocalDateTime.now().minusDays(2).withHour(0).withMinute(0).withNano(0);
+            LocalDateTime termin = LocalDateTime.now().minusDays(1).withHour(0).withMinute(0).withNano(0);
             LocalDateTime zakresRozkladu = termin.plusDays(5);
 
             ArrayList<String> linia = linie.get(nrLinii);
@@ -214,7 +214,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                     postojRepository.save(post);
                     postoje.add(post);
                     termin = termin.plusMinutes(czasPostoju)
-                            .plusMinutes(rand.nextInt(600) + 60);
+                            .plusMinutes(rand.nextInt(300) + 30);
                 }
                 Collections.reverse(linia);
             }
