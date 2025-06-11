@@ -263,6 +263,18 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
             }
         }
 
+        //test walidacji StacjeOfPolaczenie
+        //BiletBezposredni bbtest = BiletBezposredni.builder()
+        //        .cena(19.96)
+        //        .stacjaOdjazd(stacje.get(17)) //zielona góra - 0 postojów w jakimkolwiek połaczeniu
+        //        .stacjaPrzyjazd(stacje.get(0))
+        //        .polaczenie(polaczenia.get(rand.nextInt(polaczenia.size())))
+        //        .kupujacy(pasazerowie.get(rand.nextInt(pasazerowie.size())))
+        //        .nrWagonu(1)
+        //        .nrMiejsca(1)
+        //        .build();
+        //biletRepository.save(bbtest);
+
 
         //test metody Osoba.przejrzyjBilety() - wymaga FetchType.EAGER w Osoba.bilety
         /*pasazerowie=new ArrayList<>();

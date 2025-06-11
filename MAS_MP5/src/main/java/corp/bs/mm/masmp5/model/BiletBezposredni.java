@@ -1,6 +1,7 @@
 package corp.bs.mm.masmp5.model;
 
 import corp.bs.mm.masmp5.enums.StatusBiletu;
+import corp.bs.mm.masmp5.model.constraints.StacjeOfPolaczenieValidation;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,6 +9,8 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+@StacjeOfPolaczenieValidation
+// Pilnuje, żeby wprzypisanych stacjach były postoje w ramach powiązanego połaczenia
 @SuperBuilder
 @Entity
 @NoArgsConstructor
