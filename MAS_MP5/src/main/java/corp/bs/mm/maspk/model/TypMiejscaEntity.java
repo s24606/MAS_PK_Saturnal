@@ -1,0 +1,36 @@
+package corp.bs.mm.maspk.model;
+
+import corp.bs.mm.maspk.enums.TypMiejsca;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+@Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Table(
+        name = "typ_miejsca",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"miejsce_id", "typ"})
+)
+public class TypMiejscaEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private TypMiejsca typ;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "miejsce_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Miejsce miejsce;
+}
+

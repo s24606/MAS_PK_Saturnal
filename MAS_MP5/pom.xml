@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>corp.bs.mm</groupId>
-    <artifactId>MAS_MP5</artifactId>
+    <artifactId>MAS_PK_Saturnal</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>MAS_MP5</name>
     <description>MAS_MP5</description>
