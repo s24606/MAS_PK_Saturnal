@@ -22,6 +22,7 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+//pilnuje żeby osoba miała przypisane atrybuty wymagane dla jej roli/ról
 @RolesAttributesValidation
 public class Osoba {
     @Id

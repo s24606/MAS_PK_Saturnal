@@ -21,6 +21,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Getter
 @Setter
+//sprawdza czy czas przyjazdu jest po czasie odjazdu
 @CzasBiletValidation
 public class BiletPrzesiadkowy extends Bilet{
 

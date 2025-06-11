@@ -60,6 +60,7 @@ public abstract class Bilet {
     @ManyToOne(optional = false)
     @JoinColumn(name = "kupujacy_id", nullable = false, updatable = false)
     @KupujacyPasazerValidation
+    //pilnuje zeby z biletem powiązane były tylko osoby z rolą Pasażer
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Osoba kupujacy;
 

@@ -21,7 +21,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+//plinuje czy przypisany nrToru jest zgodny z ilością torów na przypisanej stacji
 @NrToruValidation
+//pilnuje czy czas odjazdu jest po czasie przyjazdu (zarowno planowany jak i faktyczny)
 @CzasPostojuValidation
 @Entity
 @Data
