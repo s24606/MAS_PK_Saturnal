@@ -86,6 +86,8 @@ public abstract class Bilet {
         setStatus(StatusBiletu.ANULOWANY);
     }
 
+    public abstract StatusBiletu waliduj(Pociag pociag);
+
     public static double obliczCeneBiletu(Osoba pasazer,LocalDateTime czasOdjazdu, LocalDateTime czasPrzyjazdu){
        return Math.round((1-getZnizka(pasazer.getUlga()))*10/60*Duration.between(czasOdjazdu,czasPrzyjazdu).toMinutes()*100.0)/100.0;
     }

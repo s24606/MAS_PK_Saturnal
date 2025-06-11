@@ -1,5 +1,6 @@
 package corp.bs.mm.masmp5.model;
 
+import corp.bs.mm.masmp5.enums.StatusBiletu;
 import corp.bs.mm.masmp5.model.constraints.CzasBiletValidation;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -33,4 +34,13 @@ public class BiletPrzesiadkowy extends Bilet{
     @Min(0)
     @Builder.Default
     private int marginesBledu=60;
+    public StatusBiletu waliduj(Pociag pociag){
+        //jesli zwrocony status jest jakkolwiek inny od WAZNY - wymaga blizszej inspekcji od biletera
+        if(super.getStatus()==StatusBiletu.WAZNY){
+            super.setStatus(StatusBiletu.SKASOWANY);
+            return StatusBiletu.WAZNY;
+        } else {
+            return super.getStatus();
+        }
+    }
 }

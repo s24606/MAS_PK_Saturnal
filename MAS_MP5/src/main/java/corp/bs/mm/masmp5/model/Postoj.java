@@ -1,7 +1,10 @@
 package corp.bs.mm.masmp5.model;
 
+import corp.bs.mm.masmp5.enums.StatusBiletu;
 import corp.bs.mm.masmp5.model.constraints.CzasPostojuValidation;
 import corp.bs.mm.masmp5.model.constraints.NrToruValidation;
+import corp.bs.mm.masmp5.repository.BiletBezposredniRepository;
+import corp.bs.mm.masmp5.repository.BiletRepository;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -10,10 +13,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.StatelessSession;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 @NrToruValidation
 @CzasPostojuValidation
@@ -57,6 +63,23 @@ public class Postoj {
 
     public int getNrPeronu(){
         return (nrToru+1)/2;
+    }
+
+    public void updateRelatedBiletStatus(BiletBezposredniRepository biletBezposredniRepository){
+        ArrayList<BiletBezposredni> bilety = new ArrayList<>(polaczenie.getBiletBezposrednie());
+        if(faktycznyCzasOdjazdu!=null){
+            for(BiletBezposredni bb: bilety){
+                if(bb.getStacjaOdjazd().equals(stacja) && bb.getStatus().equals(StatusBiletu.ZAREZERWOWANY))
+                    bb.setStatus(StatusBiletu.WAZNY);
+            }
+        }
+        if(faktycznyCzasPrzyjazdu!=null){
+            for(BiletBezposredni bb: bilety){
+                if(bb.getStacjaOdjazd().equals(stacja) && !bb.getStatus().equals(StatusBiletu.ANULOWANY))
+                    bb.setStatus(StatusBiletu.ZARCHIWIZOWANY);
+            }
+        }
+        biletBezposredniRepository.saveAll(bilety);
     }
 
 }

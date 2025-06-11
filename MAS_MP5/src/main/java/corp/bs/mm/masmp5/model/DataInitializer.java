@@ -237,7 +237,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
                 Osoba pasazer = pasazerowie.get(rand.nextInt(pasazerowie.size()));
                 Integer nrWagonu;
                 Integer nrMiejsca;
-                if (kursujacy.isObowiazekRezerwacjiMiejsc() || Math.random() > 0.5) {
+                if (kursujacy.isObowiazekRezerwacjiMiejsc() || Math.random() > 0.1) {
                     nrWagonu = i;
                     nrMiejsca = (int) (Math.random() * wagon.getMiejsca().size()) + 1;
                 } else {
@@ -312,6 +312,11 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
             Bilet doAnulowania = bilety.get(rand.nextInt(bilety.size()));
             doAnulowania.anuluj();
             biletRepository.save(doAnulowania);
+        }
+
+        for(Postoj postoj: postojRepository.findAll()) {
+            postoj.updateRelatedBiletStatus(biletBezposredniRepository);
+            postojRepository.save(postoj);
         }
 
 

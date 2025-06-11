@@ -1,5 +1,6 @@
 package corp.bs.mm.masmp5.model;
 
+import corp.bs.mm.masmp5.enums.StatusBiletu;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,4 +32,14 @@ public class BiletBezposredni extends Bilet{
     @JoinColumn(name = "polaczenie_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Polaczenie polaczenie;
+
+    public StatusBiletu waliduj(Pociag pociag){
+        //jesli zwrocony status jest jakkolwiek inny od WAZNY - wymaga blizszej inspekcji od biletera
+        if(polaczenie.getPociagKursujacy().equals(pociag) && super.getStatus()==StatusBiletu.WAZNY){
+            super.setStatus(StatusBiletu.SKASOWANY);
+            return StatusBiletu.WAZNY;
+        }else{
+            return super.getStatus();
+        }
+    }
 }
